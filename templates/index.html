@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Home</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='static/styles.css'>
+    <script src='main.js'></script>
+    <style>
+        /* Dropdown Button */
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  left: 40% !important;
+  right: auto !important;
+  text-align: center !important;
+  width: 160px;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
+    </style>
+
+<div class="dropdown">
+  <button class="dropbtn">Menu</button>
+  <div class="dropdown-content">
+    <a href="/about">About</a>
+    <a href="/jo">Array</a>
+    <a href="/api/v1/albums" style="color:blue;">AlbumsAPI</a>
+    <a href="/api/v1/movies" style="color:palevioletred;">MoviesAPIv1</a>
+    <a href="/api/v2/movies" style="color:green;">MoviesAPIv2</a>
+    <a id="search" href="/api/v2/movies/search?title=" onclick="addCode()" >MoviesSearch</a>
+    <input style="width: 155px;" id="txt" type="text" value="Search"></a>
+  </div>
+</div>
+
+</head>
+<body>
+
+    <p>blue</p>
+
+    <script type="text/javascript">
+      function addCode() {
+        val = document.getElementById("txt").value; 
+        document.getElementById("search").href += val;
+        } 
+     </script>
+</body>
+</html>
