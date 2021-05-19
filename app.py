@@ -6,6 +6,7 @@ import sqlite3 as sql
 
 app = Flask(__name__, static_folder="static")
 #comment
+#comment2
 con = sql.connect("data.db")
 cur = con.cursor()
 
