@@ -21,5 +21,18 @@ def index():
  
     return render_template('index.html')
 
+@app.route('/create',methods = ['POST', 'GET'])
+def login():
+    name = request.form['name']
+    email = request.form['email']
+    password = request.form['password']
+
+   
+
+    return render_template('create.html', password = password, email = email, name = name)
+
+
+    
+
 if __name__ == '__main__':
  app.run(debug=True, host='0.0.0.0') 
