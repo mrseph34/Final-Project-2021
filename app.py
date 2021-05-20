@@ -6,13 +6,11 @@ import sqlite3 as sql
 
 app = Flask(__name__, static_folder="static")
 
-con = sql.connect("static/data/data.db")
+con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
-cur.execute('CREATE TABLE IF NOT EXISTS "users" ("name" TEXT, "email" TEXT, "password"  TEXT)')
-cur.execute('SELECT email FROM users')
-print(cur.fetchall())
-
+cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password"  TEXT)')
+con.commit()
 cur.close()
 
 @app.route('/')
@@ -22,30 +20,62 @@ def index():
 
 @app.route('/register',methods = ['POST', 'GET'])
 def register():
-    con = sql.connect("static/data/data.db")
-    cur = con.cursor()
-    name = request.form['name']
+    fname = request.form['fname']
+    lname = request.form['lname']
     email = request.form['email']
     password = request.form['password']
 
-   # cur.execute("INSERT INTO users(name,email,password) VALUES((?),(?),(?))", (name, email, password))
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
 
     cur.execute('SELECT email FROM users')
 
     emails = cur.fetchall()
-    print(cur.fetchall())
+
     huh = "EMAIL DO NOT EXIST"
 
     for row in emails:
-        if row == email:
+        if row[0].upper() == email.upper():
             huh = "EMAIL EXISTS"
+            return render_template('index.html', failed2 = "Email already exists")
         
-    #if huh == False:
-       # cur.execute("INSERT INTO users(name,email,password) VALUES((?),(?),(?))", (name, email, password))
+    if huh == "EMAIL DO NOT EXIST":
+        cur.execute("INSERT INTO users(fname, lname, email, password) VALUES((?),(?),(?),(?))", (fname, lname, email, password))
+        con.commit()
 
     cur.close()
 
-    return render_template('index.html', email = email, name = name, created = huh)
+    return render_template('create.html', email = email, fname = fname, lname = lname, created = huh)
+
+@app.route('/signin',methods = ['POST', 'GET'])
+def signin():
+    name = ""
+    email = request.form['email']
+    password = request.form['password']
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute('SELECT * FROM users')
+
+    all = cur.fetchall()
+    
+    exists = False
+
+    for row in all:
+        if row[2].upper() == email.upper():
+            exists = True
+            if row[3] == password:
+                name = row[0]
+            elif name != row[0]:
+                return render_template('index.html', failed = "Password is incorrect")
+
+    if exists == False:
+            return render_template('index.html', failed = "Email is not registered")
+
+    cur.close()
+
+    return render_template('home.html', name = name, email = email)
 
 
     

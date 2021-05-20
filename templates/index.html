@@ -50,8 +50,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #FF4B2B;
-	background-color: #FF4B2B;
+	border: 1px solid #3faeda;
+	background-color: #41a3ff;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -164,9 +164,9 @@ input {
 }
 
 .overlay {
-	background: #FF416C;
-	background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-	background: linear-gradient(to right, #FF4B2B, #FF416C);
+	background: #3faeda;
+	background: -webkit-linear-gradient(to right, #3faeda, #41a3ff);
+	background: linear-gradient(to right, #3faeda, #41a3ff);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 0 0;
@@ -247,7 +247,7 @@ footer p {
 }
 
 footer i {
-    color: red;
+    color: 3c97bf;
 }
 
 footer a {
@@ -264,24 +264,26 @@ footer a {
 </head>
 <body>
 
-{{ created }}
 <!-- Form-->
 <div class="container" id="container">
 	<div class="form-container sign-up-container">
 		<form action="/register" method = "post">
 			<h1>Create Account</h1>
-			<input type="text" placeholder="Name" name = "name" />
-			<input type="email" placeholder="Email" name = "email"/>
-			<input type="password" placeholder="Password" name = "password"/>
+			<input type="text" placeholder="First Name" name = "fname" required = "required" minlength=2/>
+			<input type="text" placeholder="Last Name" name = "lname" required = "required" minlength=2/>
+			<input type="email" placeholder="Email" name = "email" required = "required"/>
+			<input type="password" placeholder="Password" name = "password" required = "required" minlength=6/>
 			<button>Sign Up</button>
 		</form>
 	</div>
 	<div class="form-container sign-in-container">
 		<form action="/signin" method = "post">
 			<h1>Sign in</h1>
-			<input type="email" placeholder="Email" name = "email" />
-			<input type="password" placeholder="Password" name = "password" />
+			<input type="email" placeholder="Email" name = "email" required = "required" />
+			<input type="password" placeholder="Password" name = "password" required = "required"/>
 			<button>Sign In</button>
+			<br>
+				{{ failed }}
 		</form>
 	</div>
 	<div class="overlay-container">
@@ -295,6 +297,8 @@ footer a {
 				<h1>Hello, Friend!</h1>
 				<p>Enter your personal details and start journey with us</p>
 				<button class="ghost" id="signUp">Sign Up</button>
+				<br> 
+				{{ failed2 }}
 			</div>
 		</div>
 	</div>
