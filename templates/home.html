@@ -8,6 +8,13 @@
 </head>
 <body>
     <h1>Welcome To back to Hoots {{ fname }} {{ lname }}.</h1>
+
+    <form action="/post/{{email}}/{{fname}}/{{lname}}" method = "post">
+        <h1>Post</h1>
+        <input type="text" placeholder="Type Something To Post" name = "post" required = "required" />
+        <button>Post</button>
+    </form>
+
     
 </body>
 <script>

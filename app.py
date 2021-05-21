@@ -10,13 +10,34 @@ con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password"  TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "name" TEXT)')
 con.commit()
 cur.close()
 
 @app.route('/')
 def index():
- 
+    
     return render_template('index.html')
+
+@app.route('/post/<email>/<fname>/<lname>', methods=['GET', 'POST'])
+def post(email,fname, lname):
+    post = request.form['post']
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    full_name = fname + " " + lname
+    # cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
+    cur.execute("INSERT INTO all_posts(post, name) VALUES((?),(?))", (post, full_name))
+    rows = cur.execute("SELECT * from all_posts")
+    posts = []
+    for row in rows:
+        post = {'post' : row[0],'name' : row[1]}
+        posts.append(post)
+
+    con.commit()
+    con.close()
+        
+    
+    return render_template('posts.html', posts = posts)
 
 @app.route('/register',methods = ['POST', 'GET'])
 def register():
@@ -24,6 +45,9 @@ def register():
     lname = request.form['lname']
     email = request.form['email']
     password = request.form['password']
+
+    full_name = fname + " " + lname
+    insert = '"' + email + '"'
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
@@ -41,9 +65,12 @@ def register():
         
     if huh == "EMAIL DO NOT EXIST":
         cur.execute("INSERT INTO users(fname, lname, email, password) VALUES((?),(?),(?),(?))", (fname, lname, email, password))
+        cur.execute('CREATE TABLE' + insert  + '("post" TEXT, "name" TEXT)')
+
         con.commit()
 
     cur.close()
+
 
     return render_template('create.html', email = email, fname = fname, lname = lname, created = huh)
 
@@ -73,9 +100,23 @@ def signin():
     if exists == False:
             return render_template('index.html', failed = "Email is not registered")
 
-    cur.close()
 
-    return render_template('home.html', name = name, email = email)
+    
+    fname_sql = 'SELECT fname FROM users WHERE email=?'
+    cur.execute(fname_sql, (email,))
+    fname = cur.fetchall()
+
+    lname_sql = 'SELECT lname FROM users WHERE email=?'
+    cur.execute(lname_sql, (email,))
+    lname = cur.fetchall()
+
+
+
+    
+
+    cur.close()
+    
+    return render_template('home.html', fname = fname[0][0], email = email, lname = lname[0][0])
 
 
     
