@@ -19,6 +19,7 @@ cur = con.cursor()
 
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password"  TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
 con.commit()
 cur.close()
 
@@ -52,10 +53,19 @@ def home():
         post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]]
         posts.append(post)
     cur.close()
-    print(loggedinEmail)
-    print(loggedinEmail)
-    print(loggedinEmail)
-    return render_template('home.html', posts = posts, email=loggedinEmail)
+    
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    
+    cur.execute("SELECT * from all_comments")
+    rowes = cur.fetchall()
+    comments = []
+    for row in rowes:
+        comment = [row[0],row[1],row[2],row[3],row[4]]
+        comments.append(comment)
+    cur.close()
+
+    return render_template('home.html', posts = posts, comments=comments, replies="replies", name=full_name, email=loggedinEmail)
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -147,6 +157,7 @@ def register():
 def signin():
     global loggedin
     global loggedinEmail
+    global full_name
 
     if loggedin:
         return redirect("/home", code=302)
@@ -183,14 +194,14 @@ def signin():
     fname_sql = 'SELECT fname FROM users WHERE email=?'
     cur.execute(fname_sql, (email,))
     fname = cur.fetchall()
+    fname = fname[0][0]
 
     lname_sql = 'SELECT lname FROM users WHERE email=?'
     cur.execute(lname_sql, (email,))
     lname = cur.fetchall()
+    lname = lname[0][0]
 
-
-
-    
+    full_name = fname+" "+lname
 
     cur.close()
     
@@ -228,6 +239,23 @@ def like(id):
             con.commit()
 
             cur.close()
+    return "success", 200
+
+@app.route('/comment/<comment>/<id>',methods = ['POST', 'GET'])
+def comments(comment,id):
+    global loggedinEmail
+    global full_name
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    date = datetime.datetime.now()
+
+    cur.execute("INSERT INTO all_comments(id, name, comment, date, email) VALUES((?),(?),(?),(?),(?))", (id, full_name, comment, date, loggedinEmail))
+    con.commit()
+
+    cur.close()
+
     return "success", 200
 
 
