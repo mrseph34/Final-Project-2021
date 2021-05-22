@@ -173,7 +173,24 @@
                             <img class="fakeimg" src="../static/posts/{{ posts[i][0] }}" style="height: 400px; background-color: white;">
                             <button class="likes" style="float: left;" {{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <!--<p class="description">{{ posts[i][4] }}</p>-->
-                            <button class="view_comments" style="text-align: left;">View Comments</button>
+                            <button style="float: left;" class="view_comments" onclick="showComments('commento{{i}}')" style="text-align: left;">Comments</button>
+                            <div style="display: none; float: left;" class="comments" id="commento{{i}}">
+
+                              <label for="comment" required>Comment:</label><input class="comment" type="text" id="comment{{i}}" name="comment" ><input class="commentButton" onclick='setNameId("{{ posts[i][2] }}","{{ name }}", "comment{{i}}","comment-{{i}}")' type="submit">
+
+                              <div id="comment-{{i}}"></div>
+                              {% for comment in comments %}
+                                {% set ii = loop.index-1 %}
+                                  {% if i==i%}
+                                  {% if comments[ii][0] == posts[i][2] %}
+
+                                    <p><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
+                                
+                                  {%endif%}
+                                  {%endif%}
+                              {%endfor%}
+
+                            </div>
                         </div>
                         </div>
                     </div>
@@ -189,8 +206,8 @@
                             <p style="background-color: #aaa;" class="description">{{ posts[i][4] }}</p>
                             <button class="likes" id="{{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <p class="name">By: {{ posts[i][3] }}</p> 
-                            <button class="view_comments">Comments</button>
-                            <div class="comments">
+                            <button onclick="showComments('commento{{i}}')" class="view_comments">Comments</button>
+                            <div style="display: none;" class="comments" id="commento{{i}}">
 
                               <label for="comment" required>Comment:</label><input class="comment" type="text" id="comment{{i}}" name="comment" ><input class="commentButton" onclick='setNameId("{{ posts[i][2] }}","{{ name }}", "comment{{i}}","comment-{{i}}")' type="submit">
 
@@ -277,6 +294,19 @@
             $("#"+its).append("<p><strong>"+name+"</strong> "+value+" (now)</p>")
         });
     });
+    
+    function showComments(stuff){
+      $(document).ready(function () {
+        if ($("#"+stuff).is(":hidden")){
+          $("#"+stuff).show();
+        } else {
+          $(document).ready(function () {
+          $("#"+stuff).hide();
+        });
+        }
+        });
+
+    }
 
   </script>
 
