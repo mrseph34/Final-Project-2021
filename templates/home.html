@@ -6,6 +6,38 @@
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 					<title>HOMEPAGE</title>
 					<style>
+            .dropbtn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown:hover .dropdown-content {display: block;}
+
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
                         .menu-bar {
                           border-radius: 25px;
                           height: -webkit-fit-content;
@@ -124,7 +156,7 @@
 				</head>
 				<center>
 				<body>
-					<ul style="position:fixed; top: -7%; right:22%;" class="menu-bar">
+					<ul style="position:fixed; top: -7%; right:20%;" class="menu-bar">
                         <div style="float: left; color: whitesmoke;">
                         <label for="search">Search:</label>
                         <input type="search" id="search" name="search">
@@ -134,10 +166,18 @@
 						<li>Stories</li>
 						<li>Messages</li>
 						<li>Games</li>
+            <div class="dropdown">
+              <li><a href="/home/post" style="border-radius: 360px;" class="dropbtn">+</a></li>
+              <div style="border-radius: 12px;" class="dropdown-content">
+                <!--<a href="/home/blog">Blog</a>
+                <a href="/home/img">Picture</a>
+                <a href="/home/vid">Video</a>-->
+              </div>
+            </div>
                         <a href="/logout">LOGOUT</a>
 					</ul>
     <br><br>
-                    <form style="background-color: #aaa; width: 50%; text-align: left;" action="/post" method="POST" enctype="multipart/form-data">
+             <!--      <form style="background-color: #aaa; width: 50%; text-align: left;" action="/home" method="POST" enctype="multipart/form-data">
                         <label for="img">Select Image:</label>
                         <input type="file" id="img" name="img" accept="image/*"><br>
                         <label for="title">Title:</label>
@@ -145,7 +185,7 @@
                         <label for="description" required>Description:</label>
                         <input type="text" id="description" name="description" ><br>
                         <input type="submit">
-                      </form>
+                      </form>-->
                       
     
         {% if not posts %}
@@ -171,11 +211,11 @@
                             <h2 class="title">{{ posts[i][1] }}</h2>
                             <h5 class="date" >{{ posts[i][2] }}</h5>
                             <img class="fakeimg" src="../static/posts/{{ posts[i][0] }}" style="height: 400px; background-color: white;">
-                            <button class="likes" style="float: left;" {{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
+                            <button style="float: left;" class="likes" id="{{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <!--<p class="description">{{ posts[i][4] }}</p>--><br><br><br>
-                            <button style="float: left;" class="view_comments" onclick="showComments('commento{{i}}')" style="text-align: left;">Comments</button>
-                            <br>
-                            <div style="display: none; overflow: scroll; height: 100px;" class="comments" id="commento{{i}}">
+                            <button style="float: left;" class="view_comments" onclick="showComments('commento{{i}}')" style="text-align: left;">View Comments</button>
+                            <br><br>
+                            <div style="display: none; overflow: scroll; height: 100px; text-align: left;" class="comments" id="commento{{i}}">
 
                               
                               <div id="comment-{{i}}"></div>
@@ -184,7 +224,7 @@
                                   {% if i==i%}
                                   {% if comments[ii][0] == posts[i][2] %}
 
-                                    <p><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
+                                    <p style="font-size: 12px;"><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
                                 
                                   {%endif%}
                                   {%endif%}
@@ -208,7 +248,7 @@
                             <p style="background-color: #aaa;" class="description">{{ posts[i][4] }}</p>
                             <button class="likes" id="{{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <p class="name">By: {{ posts[i][3] }}</p> 
-                            <button onclick="showComments('commento{{i}}')" class="view_comments">Comments</button>
+                            <button onclick="showComments('commento{{i}}')" class="view_comments">View Comments</button><br><br>
                             <div style="display: none; overflow: scroll; height: 100px;" class="comments" id="commento{{i}}">
 
                               <div id="comment-{{i}}"></div>
@@ -217,7 +257,7 @@
                                   {% if i==i%}
                                   {% if comments[ii][0] == posts[i][2] %}
 
-                                    <p><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
+                                    <p style="font-size: 12px;"><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
                                 
                                   {%endif%}
                                   {%endif%}
@@ -256,15 +296,28 @@
 </div> --> 
 
 <script>
+  i=0;
     function likes(post,likes,check,email){
         console.log(email)
-        if (check.includes(email)){
-            document.getElementById(post).innerHTML = "Likes: " + (likes-1);
-            }
-        if (check.includes(email)==false){ 
-            document.getElementById(post).innerHTML = "Likes: " + (likes+1);
+        if (check.includes(email) && i<2){
+            i=2
+            bb = 0
         }
-        
+        if (check.includes(email)==false && i<2){ 
+          i=1
+          bb = 1
+        }
+
+        if (i%2==0){
+          if (bb == 0) {
+          document.getElementById(post).innerHTML = "Likes: " + (likes-1);
+          } else {document.getElementById(post).innerHTML = "Likes: " + (likes);}
+        } else {
+          if (bb==1){
+          document.getElementById(post).innerHTML = "Likes: " + (likes+1);}
+          else{document.getElementById(post).innerHTML = "Likes: " + (likes);}
+        }
+        i=i+1
         ajax_follow(post)
     }
     

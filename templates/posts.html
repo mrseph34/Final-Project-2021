@@ -119,56 +119,54 @@
                           }
                         }
 					</style>
+          <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 				</head>
 				
 				<body>
-					<ul class="menu-bar">
-						<li>Home</li>
-						<li>Friends</li>
-						<li>Stories</li>
-						<li>Messages</li>
-						<li>Games</li>
-					</ul>
-    
-                    <form action="/post" method="POST" enctype="multipart/form-data">
-                        <label for="img">Select Image:</label>
-                        <input type="file" id="img" name="img" accept="image/*"><br>
-                        <label for="title">Title:</label>
-                        <input type="text" id="title" name="title" required="required"><br>
-                        <label for="description">Description:</label>
-                        <input type="text" id="description" name="description" required="required"><br>
-                        <input type="submit">
-                      </form>
-                      
-    
-        {% if not posts %}
-      
-            <p>POSTLESS HOOTERS</p>
+					<ul style="position:fixed; top: -7%; right:22%;" class="menu-bar">
+            <div style="float: left; color: whitesmoke;">
+            <label for="search">Search:</label>
+            <input type="search" id="search" name="search">
+            </div>
+<li>Home</li>
+<li>Friends</li>
+<li>Stories</li>
+<li>Messages</li>
+<li>Games</li>
+            <a href="/logout">LOGOUT</a>
+</ul>
+<br><br><br><br><br>
+<center>
+<form style="border-radius: 8px; background-color: #aaa; width: 50%; text-align: center;" action="/post" method="POST" enctype="multipart/form-data">
+  <br><label for="title">Title:</label>
+  <input type="text" id="title" name="title" required><br><br>
+  <label for="description" required>Description:</label>
+  <input type="text" id="description" name="description" ><br><br>
+
+  <button type="button" onclick="show('milk')">Add Image</button>
+  or
+  <button type="button" onclick="show('not milk')">Add Video</button>
+
+  <br><br>
+
+  <div style="display: none;" id="video">
+    <label for="vid">Video:</label>
+    <input type="file" id="vid" name="vid" accept="video/*">
+  </div>
+
+  <div style="display: none;" id="image">
+  <label for="img">Image:</label>
+  <input type="file" id="img" name="img" accept="image/*">
+  </div>
+
+  <br>
   
-        {% endif %}
+  <input type="submit"><br>
+  <br>
+
+</form>
+</center>
   
-        {% if posts %}
-          {% for post in posts%}  
-          {% set poster = [] %}    
-            {% for pos in post %}
-                {{ poster.append(pos) }}
-            {%endfor%}
-            <div class="row">
-              <div class="leftcolumn">
-                <div class="card">
-                  <h2 class="title">Title: {{ poster[1] }}</h2>
-                  <h5 class="date" >Posted: {{ poster[2] }}</h5>
-                  <div class="fakeimg" style="height:200px;">{{ poster[0] }}</div>
-                  <button class="likes">Likes: {{ poster[6] }}</button>
-                  <p class="name">By: {{ poster[3] }}</p> 
-                  <p class="description">Description: {{ poster[4] }}</p>
-                  <button class="comments">Comments:</button>
-                </div>
-              </div>
-  
-          {%endfor%}
-  
-        {% endif %}
 
   <!--
   <div class="rightcolumn">
@@ -189,6 +187,25 @@
     </div>
   </div>
 </div> --> 
+
+<script>
+  
+  function show(stuff){
+    $(document).ready(function () {
+      if (stuff=="milk"){
+        $("#image").show();
+        $("#video").hide();
+      } else {
+        $(document).ready(function () {
+        $("#video").show();
+        $("#image").hide();
+      });
+      }
+      });
+
+  }
+
+</script>
 
 				</body>
 			</html>

@@ -67,6 +67,19 @@ def home():
 
     return render_template('home.html', posts = posts, comments=comments, replies="replies", name=full_name, email=loggedinEmail)
 
+@app.route('/home/post')
+def homePost():
+    global loggedin
+    global loggedinEmail
+    global full_name
+    email = loggedinEmail
+
+    if loggedin == False:
+        print("NOT LOGGED IN")
+        return redirect("/", code=302)
+
+    return render_template('posts.html', type=type)
+
 @app.route('/post', methods=['GET', 'POST'])
 def post():
     global loggedin
@@ -78,13 +91,16 @@ def post():
         print("NOT LOGGED IN")
         return redirect("/", code=302)
 
+
     img = request.files['img']
+    imgname = img.filename
     if img.filename != "":
         print(img.filename)
         filename = secure_filename(img.filename)
         img.save(os.path.join(app.config['POSTS_FOLDER'], filename))
         print('upload_image filename: ' + filename)
         flash('Image successfully uploaded and displayed below')
+
 
     title = request.form.get("title", False)
     description = request.form.get("description", False)
@@ -94,7 +110,7 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?))", (img.filename, title, date, full_name, description, "[]", 0, "[]", email))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
@@ -108,7 +124,7 @@ def post():
     con.close()
         
     
-    return render_template('home.html', posts = posts, email=loggedinEmail)
+    return redirect("/home", code=302)
 
 @app.route('/register',methods = ['POST', 'GET'])
 def register():
@@ -151,7 +167,7 @@ def register():
     cur.close()
 
 
-    return render_template('create.html', email = email, fname = fname, lname = lname, created = huh)
+    return redirect("/home", code=302)
 
 @app.route('/signin',methods = ['POST', 'GET'])
 def signin():
@@ -205,7 +221,8 @@ def signin():
 
     cur.close()
     
-    return render_template('home.html', fname = fname[0][0], email = email, lname = lname[0][0])
+    return redirect("/home", code=302)
+
 
 @app.route('/like/<id>',methods = ['POST', 'GET'])
 def like(id):
