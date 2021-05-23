@@ -124,7 +124,7 @@
 				</head>
 				<center>
 				<body>
-					<ul class="menu-bar">
+					<ul style="position:fixed; top: -7%; right:22%;" class="menu-bar">
                         <div style="float: left; color: whitesmoke;">
                         <label for="search">Search:</label>
                         <input type="search" id="search" name="search">
@@ -172,12 +172,12 @@
                             <h5 class="date" >{{ posts[i][2] }}</h5>
                             <img class="fakeimg" src="../static/posts/{{ posts[i][0] }}" style="height: 400px; background-color: white;">
                             <button class="likes" style="float: left;" {{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
-                            <!--<p class="description">{{ posts[i][4] }}</p>-->
+                            <!--<p class="description">{{ posts[i][4] }}</p>--><br><br><br>
                             <button style="float: left;" class="view_comments" onclick="showComments('commento{{i}}')" style="text-align: left;">Comments</button>
-                            <div style="display: none; float: left;" class="comments" id="commento{{i}}">
+                            <br>
+                            <div style="display: none; overflow: scroll; height: 100px;" class="comments" id="commento{{i}}">
 
-                              <label for="comment" required>Comment:</label><input class="comment" type="text" id="comment{{i}}" name="comment" ><input class="commentButton" onclick='setNameId("{{ posts[i][2] }}","{{ name }}", "comment{{i}}","comment-{{i}}")' type="submit">
-
+                              
                               <div id="comment-{{i}}"></div>
                               {% for comment in comments %}
                                 {% set ii = loop.index-1 %}
@@ -191,6 +191,8 @@
                               {%endfor%}
 
                             </div>
+                            <div style="position: absolute;"><label for="comment" required>Comment:</label><input class="comment" type="text" id="comment{{i}}" name="comment" ><input class="commentButton" onclick='setNameId("{{ posts[i][2] }}","{{ name }}", "comment{{i}}","comment-{{i}}")' type="submit">
+                            </div><br>
                         </div>
                         </div>
                     </div>
@@ -207,9 +209,7 @@
                             <button class="likes" id="{{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <p class="name">By: {{ posts[i][3] }}</p> 
                             <button onclick="showComments('commento{{i}}')" class="view_comments">Comments</button>
-                            <div style="display: none;" class="comments" id="commento{{i}}">
-
-                              <label for="comment" required>Comment:</label><input class="comment" type="text" id="comment{{i}}" name="comment" ><input class="commentButton" onclick='setNameId("{{ posts[i][2] }}","{{ name }}", "comment{{i}}","comment-{{i}}")' type="submit">
+                            <div style="display: none; overflow: scroll; height: 100px;" class="comments" id="commento{{i}}">
 
                               <div id="comment-{{i}}"></div>
                               {% for comment in comments %}
@@ -224,6 +224,8 @@
                               {%endfor%}
 
                             </div>
+                            <div style="position: absolute;"><label for="comment" required>Comment:</label><input class="comment" type="text" id="comment{{i}}" name="comment" ><input class="commentButton" onclick='setNameId("{{ posts[i][2] }}","{{ name }}", "comment{{i}}","comment-{{i}}")' type="submit">
+                            </div><br>
                         </div>
                         </div>
                     </div>
