@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{full_name}}'s Settings page</h1>
+    
+    <form action="/change_password" method = "post">
+        <h1>Change Password</h1>
+        <input type="text" placeholder="Old Password" name = "old_pass"  minlength=2/>
+        <input type="text" placeholder="New Password" name = "new_pass"  minlength=2/>
+        
+        {%if exists == True%}
+        
+        <p>Password is not correct</p>
+
+        {%endif%}
+        <button>Change</button>
+
+        
+    </form>
+
+    <form action="/change_email" method = "post">
+
+        <h1>Change Email</h1>
+        <input type="text" placeholder="New Email" name = "new_email" minlength=2/>
+        {%if ematch == True%}
+        
+        <p>Email exists</p>
+
+        {%endif%}
+        
+        <button>Change</button>
+    </form>
+
+    <form action="/change_name" method = "post">
+        <h1>Change Name</h1>
+        <input type="text" placeholder="First Name" name = "fname" minlength=2/>
+        <input type="text" placeholder="Last Name" name = "lname" minlength=2/>
+        <button>Change</button>
+    </form>
+
+        
+    <a href="/home">Home</a>
+    
+
+       
+
+    
+    
+
+    <h1></h1>
+</body>
+</html>

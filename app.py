@@ -40,6 +40,14 @@ def index():
         return redirect("/home", code=302)
     return render_template('index.html')
 
+@app.route('/settings')
+def settings():
+    global loggedin
+    global loggedinEmail
+    global full_name
+    
+    return render_template('settings.html', full_name = full_name, match = False, ematch = False)
+
 @app.route('/home')
 def home():
     global loggedinEmail
@@ -263,8 +271,7 @@ def comments(comment,id):
     global loggedinEmail
     global full_name
 
-    con = sql.connect("./static/data/data.db")
-    cur = con.cursor()
+    
 
     date = datetime.datetime.now()
 
@@ -275,6 +282,103 @@ def comments(comment,id):
 
     return "success", 200
 
+@app.route('/change_password', methods = ['POST', 'GET'])
+def change_pass():
+    global loggedin
+    global loggedinEmail
+    global full_name
+    
+    
+    old_pass = request.form.get('old_pass')
+    new_pass = request.form.get('new_pass')
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    
+    cur.execute("SELECT password FROM users WHERE email='"+loggedinEmail+"'")
+    curent_password = cur.fetchall()
+    curent_password = curent_password[0][0]
+    print(curent_password)
+    
+    con.commit()
+    cur.close()
+
+    if(old_pass == curent_password):
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("UPDATE users SET password='"+new_pass+"' WHERE email='"+loggedinEmail+"'")
+        con.commit()
+        cur.close()
+        return redirect("/settings", code = 302)
+    else:
+        print('Not a match')
+        match = True
+        con.commit()
+        cur.close()
+        return render_template('settings.html', full_name = full_name, exists = match, ematch = False)
+        
+@app.route('/change_email', methods = ['POST', 'GET'])
+def change_email():
+
+
+    global loggedin
+    global loggedinEmail
+    global full_name
+
+    new_email = request.form.get('new_email')
+    
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    
+
+    cur.execute('SELECT email FROM users')
+
+    emails = cur.fetchall()
+
+    huh = "EMAIL DO NOT EXIST"
+
+    exists = False
+
+    for row in emails:
+        if row[0].upper() == new_email.upper():
+            huh = "EMAIL EXISTS"
+            exists = True
+
+    if huh == "EMAIL DO NOT EXIST":
+        cur.execute("UPDATE users SET email='"+new_email+"' WHERE email='"+loggedinEmail+"'")
+        loggedinEmail = new_email
+        exists = False
+        con.commit()
+        cur.close()
+        return redirect("/settings", code = 302)
+    else:
+        return render_template('settings.html', full_name = full_name, match = False, ematch = exists)
+
+@app.route('/change_name', methods = ['POST', 'GET'])
+def change_name():
+    global loggedin
+    global loggedinEmail
+    global full_name
+
+    
+    
+    
+
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    cur.execute("UPDATE users SET fname='"+fname+"' WHERE email='"+loggedinEmail+"'")
+    cur.execute("UPDATE users SET lname='"+lname+"' WHERE email='"+loggedinEmail+"'")
+
+    full_name = fname + " " + lname
+    con.commit()
+    cur.close()
+    return redirect("/settings", code = 302)
+    
+        
 
 @app.route('/logout',methods = ['POST', 'GET'])
 def logout():
@@ -283,6 +387,7 @@ def logout():
     loggedin = False
     loggedinEmail = ""
     return redirect("/", code=302)
+
 
 if __name__ == '__main__':
  app.run(debug=True, host='0.0.0.0') 
