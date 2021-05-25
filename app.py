@@ -530,8 +530,13 @@ def change_email():
 @app.route('/change_name', methods = ['POST', 'GET'])
 @login_required
 def change_name():
-      
+    
+    
     full_name = getName()
+
+    
+    
+    
 
     fname = request.form.get('fname')
     lname = request.form.get('lname')
@@ -541,7 +546,6 @@ def change_name():
     cur.execute("UPDATE users SET fname='"+fname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE users SET lname='"+lname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE all_posts SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")  
-    cur.execute("UPDATE all_comments SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")  
 
     full_name = fname + " " + lname
     con.commit()
@@ -552,6 +556,9 @@ def change_name():
     
 def getName():
     email = current_user.get_id()
+    
+    
+    
     
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
