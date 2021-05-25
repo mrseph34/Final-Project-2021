@@ -277,13 +277,14 @@ footer a {
 		</form>
 	</div>
 	<div class="form-container sign-in-container">
-		<form action="/signin" method = "post">
+		<form action="/login" method = "post">
 			<h1>Sign in</h1>
 			<input type="email" placeholder="Email" name = "email" required = "required" />
 			<input type="password" placeholder="Password" name = "password" required = "required"/>
 			<button>Sign In</button>
 			<br>
 				{{ failed }}
+				<a style="font-size: 10px;" href="/ForgotPassword">Forgot Password</a>
 		</form>
 	</div>
 	<div class="overlay-container">
