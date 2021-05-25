@@ -216,7 +216,7 @@
                             <h2 class="title">{{ posts[i][1] }}</h2>
                             <h5 class="date" >{{ posts[i][2] }}</h5>
                             <img class="fakeimg" src="../static/posts/{{ posts[i][0] }}" style="height: 400px; background-color: white;">
-                            <button style="float: left;" class="likes" id="{{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
+                            <button style="float: left;" class="likes" id="{{posts[i][9]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <!--<p class="description">{{ posts[i][4] }}</p>--><br><br><br>
                             <button style="float: left;" class="view_comments" onclick="showComments('commento{{i}}')" style="text-align: left;">View Comments</button>
                             <br><br>
@@ -260,7 +260,7 @@
                             <h2 class="title">{{ posts[i][1] }}</h2>
                             <h5 class="date" >{{ posts[i][2] }}</h5>
                             <p style="background-color: #aaa;" class="description">{{ posts[i][4] }}</p>
-                            <button class="likes" id="{{posts[i][2]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
+                            <button class="likes" id="{{posts[i][9]}}" type="{{posts[i][5]}}" onclick="likes('{{posts[i][2]}}',{{posts[i][6]}},'{{posts[i][5]}}','{{email}}')">Likes: {{ posts[i][6] }}</button>
                             <br><br><button onclick="showComments('commento{{i}}')" class="view_comments">View Comments</button><br><br>
                             <div style="display: none; overflow: scroll; height: 100px;" class="comments" id="commento{{i}}">
 

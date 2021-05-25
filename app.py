@@ -66,7 +66,7 @@ con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT)')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "iod" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
 con.commit()
 cur.close()
@@ -238,6 +238,7 @@ def post():
 
     date = x.strftime("%b") + " " + x.strftime("%d") + "," + x.strftime("%Y") 
 
+    iod = x
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
@@ -249,7 +250,7 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email, profPic))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, iod) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email, profPic,iod))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
@@ -404,12 +405,12 @@ def like(id):
         posts.append(post)
     cur.close()
     for post in posts:
-        if id == post[2]:
+        if id == post[10]:
             if ","+current_user.get_id() not in post[5]:
                 con = sql.connect("./static/data/data.db")
                 cur = con.cursor()
-                cur.execute("UPDATE all_posts SET likesAmount=likesAmount+1 WHERE date='"+post[2]+"'")
-                cur.execute("UPDATE all_posts SET likes=trim(',"+current_user.get_id()+"') WHERE date='"+post[2]+"'")
+                cur.execute("UPDATE all_posts SET likesAmount=likesAmount+1 WHERE date='"+post[10]+"'")
+                cur.execute("UPDATE all_posts SET likes=trim(',"+current_user.get_id()+"') WHERE date='"+post[10]+"'")
                 con.commit()
 
                 cur.close()
@@ -418,8 +419,8 @@ def like(id):
                 
             con = sql.connect("./static/data/data.db")
             cur = con.cursor()
-            cur.execute("UPDATE all_posts SET likesAmount=likesAmount-1 WHERE date='"+post[2]+"'")
-            cur.execute("UPDATE all_posts SET likes=likes+',"+current_user.get_id()+"' WHERE date='"+post[2]+"'")
+            cur.execute("UPDATE all_posts SET likesAmount=likesAmount-1 WHERE date='"+post[10]+"'")
+            cur.execute("UPDATE all_posts SET likes=likes+',"+current_user.get_id()+"' WHERE date='"+post[10]+"'")
             con.commit()
 
             con.close()
