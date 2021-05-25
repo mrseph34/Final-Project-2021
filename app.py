@@ -234,7 +234,10 @@ def post():
     title = request.form.get("title", False)
     description = request.form.get("description", False)
     #day = today.strftime("%B %d, %Y")
-    date = datetime.datetime.now()
+    x = datetime.datetime.now()
+
+    date = x.strftime("%b") + " " + x.strftime("%d") + "," + x.strftime("%Y") 
+
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
