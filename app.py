@@ -1,3 +1,4 @@
+from re import M
 from flask import Flask, redirect, flash, render_template, json, jsonify, request, current_app as app
 from datetime import date, datetime
 import os
@@ -68,7 +69,7 @@ cur = con.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "day" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1","email2", "message", "date")')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
 
 con.commit()
 cur.close()
@@ -91,6 +92,30 @@ def index():
     
     return render_template('index.html')
 
+@app.route('/messages')
+@login_required
+def messages2():
+
+    email = current_user.get_id()
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    msg = ""
+
+    cur.execute("SELECT * FROM all_messages")
+    bob = cur.fetchall()
+    
+    messages = []
+    for row in bob:
+        message = [row[1],row[2],row[3],row[4],row[5],row[6]]
+        messages.append(message)
+ 
+    cur.close() 
+    con.close()
+
+    return render_template('messages.html', messages = messages)
+
+
 @app.route('/messages/<reciever>')
 def messages(reciever):
 
@@ -98,10 +123,7 @@ def messages(reciever):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-
-
-    cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever))
-
+    msg = ""
 
     fname_sql = 'SELECT fname FROM users WHERE email=?'
     cur.execute(fname_sql, (reciever,))
@@ -114,7 +136,13 @@ def messages(reciever):
     lname = lname[0][0]
 
     reciever_name = fname + " " + lname
-    return render_template('messages.html', reciever = reciever, name = reciever_name)
+
+    cur.execute("INSERT INTO all_messages(email1, email2, name1, name2, message, date) VALUES((?),(?),(?),(?),(?),(?))", (email,reciever,getName(),reciever_name,msg,datetime.datetime.now()))
+    con.commit()
+
+    #cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever,msg,datetime.datetime.now()))
+
+    return render_template('messages.html', reciever = reciever, name = reciever_name, messages = "bob")
 
 @app.route('/settings')
 @login_required
