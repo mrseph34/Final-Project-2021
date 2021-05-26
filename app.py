@@ -66,9 +66,9 @@ def load_user(user_id):
 con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
-cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio", "security question", "security answer")')
-cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower","following")')
-cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1","party2")')
+cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "security question" TEXT, "security answer" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower" TEXT,"following" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1" TEXT,"party2" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "day" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
@@ -95,11 +95,19 @@ def index():
     return render_template('index.html')
 
 @app.route('/profile')
+@login_required
 def profile():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
     email = current_user.get_id()
+
+    follows = "Follow+"
+    cur.execute('SELECT following FROM followers WHERE following="'+email+'"')
+    followings = cur.fetchall()
+    for follower in followings:
+        if follower[0] == email:
+            follows = "Follow(-)"
 
     pic_sql = 'SELECT profilePic FROM users WHERE email=?'
     cur.execute(pic_sql, (email,))
@@ -119,20 +127,14 @@ def profile():
     cur.execute('SELECT * FROM all_posts WHERE email="'+email +'"')
     posts = cur.fetchall()
     post_num = len(posts)
-    print(post_num)
+
+    cur.execute('SELECT * FROM followers WHERE following="'+email +'"')
+    follow = cur.fetchall()
+    followersAmt = len(follow)
     
     name = fname + " " + lname
-
-
     
-
-    
-
-
-    print(pic)
-
-    
-    return render_template('profile.html', pic = pic, name = name, post_num = post_num)
+    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
 @app.route('/messages')
 @login_required
 def messages2():
@@ -180,7 +182,7 @@ def messages(reciever):
 
     reciever_name = fname + " " + lname
 
-    cur.execute("INSERT INTO all_messages(email1, email2, name1, name2, message, date) VALUES((?),(?),(?),(?),(?),(?))", (email,reciever,getName(),reciever_name,msg,datetime.datetime.now()))
+    cur.execute("INSERT INTO all_messages(email1, email2, name1, name2, message, date) VALUES((?),(?),(?),(?),(?),(?))", (email,reciever,getName(None),reciever_name,msg,datetime.datetime.now()))
     con.commit()
 
     #cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever,msg,datetime.datetime.now()))
@@ -191,7 +193,7 @@ def messages(reciever):
 @login_required
 def settings():
     
-    full_name = getName()
+    full_name = getName(None)
     global change
     changed = change
     change = ""
@@ -241,7 +243,7 @@ def forgotPassword2(email):
 @login_required
 def home():
 
-    full_name = getName()
+    full_name = getName(None)
     
     profilePic = []
 
@@ -301,7 +303,7 @@ def home():
 def homePost():
     
     
-    full_name = getName()
+    full_name = getName(None)
     email = current_user.get_id()
 
     
@@ -312,7 +314,7 @@ def homePost():
 def post():
     
     
-    full_name = getName()
+    full_name = getName(None)
     email = current_user.get_id()
 
     
@@ -364,7 +366,7 @@ def post():
 def profilePic():
     
     
-    full_name = getName()
+    full_name = getName(None)
     email = current_user.get_id()
     global change
     img = request.files['prof']
@@ -520,11 +522,38 @@ def like(id):
             cur.close()
     return "success", 200
 
+@app.route('/follow/<following>',methods = ['POST', 'GET'])
+@login_required
+def follow(following):
+
+    email = current_user.get_id()
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    follows = "Follow+"
+    cur.execute('SELECT following FROM followers WHERE following="'+following+'"')
+    followings = cur.fetchall()
+    for follower in followings:
+        if follower[0] == email:
+            follows = "Follow(-)"
+
+    if follows == "Follow+":
+        cur.execute("INSERT INTO followers(follower,following) VALUES((?),(?))", (email,following))
+        con.commit()
+    if follows == "Follow(-)":
+        cur.execute("DELETE FROM followers WHERE follower='"+email+"' AND following='"+following+"'")
+        con.commit()
+
+    cur.close()
+    con.close()
+
+    return "success", 200
+
 @app.route('/comment/<comment>/<id>',methods = ['POST', 'GET'])
 @login_required
 def comments(comment,id):
     
-    full_name = getName()
+    full_name = getName(None)
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
@@ -544,7 +573,7 @@ def comments(comment,id):
 def change_pass():
     
     
-    full_name = getName()
+    full_name = getName(None)
     
     
     old_pass = request.form.get('old_pass')
@@ -584,7 +613,7 @@ def change_email():
 
     
     
-    full_name = getName()
+    full_name = getName(None)
 
     new_email = request.form.get('new_email')
     
@@ -624,7 +653,7 @@ def change_email():
 @login_required
 def change_name():
       
-    full_name = getName()
+    full_name = getName(None)
 
     fname = request.form.get('fname')
     lname = request.form.get('lname')
@@ -643,25 +672,44 @@ def change_name():
     change = "NAME CHANGED SUCCESSFULLY!"
     return redirect("/settings", code = 302)
     
-def getName():
-    email = current_user.get_id()
-    
-    con = sql.connect("./static/data/data.db")
-    cur = con.cursor()
-    cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
-    fname = cur.fetchall()[0][0]
-    con.commit()
-    cur.close()
+def getName(email):
 
-    con = sql.connect("./static/data/data.db")
-    cur = con.cursor()
-    cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
-    lname = cur.fetchall()[0][0]
+    if email == None:
+        email = current_user.get_id()
+        
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
+        fname = cur.fetchall()[0][0]
+        con.commit()
+        cur.close()
+
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
+        lname = cur.fetchall()[0][0]
 
 
-    full_name = fname + " " + lname
-    con.commit()
-    cur.close()
+        full_name = fname + " " + lname
+        con.commit()
+        cur.close()
+    else:
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
+        fname = cur.fetchall()[0][0]
+        con.commit()
+        cur.close()
+
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
+        lname = cur.fetchall()[0][0]
+
+
+        full_name = fname + " " + lname
+        con.commit()
+        cur.close()
     
     return full_name
 
