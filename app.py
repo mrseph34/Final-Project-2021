@@ -71,11 +71,8 @@ cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower","following")')
 cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1","party2")')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "day" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
-<<<<<<< HEAD
-=======
 cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
 
->>>>>>> f6e369bf016cc7e11dd71d98d199da05517fec1c
 con.commit()
 cur.close()
 
@@ -97,7 +94,6 @@ def index():
     
     return render_template('index.html')
 
-<<<<<<< HEAD
 @app.route('/profile')
 def profile():
     con = sql.connect("./static/data/data.db")
@@ -114,7 +110,29 @@ def profile():
     cur.execute(fname_sql, (email,))
     fname = cur.fetchall()
     fname = fname[0][0]
-=======
+
+    lname_sql = 'SELECT lname FROM users WHERE email=?'
+    cur.execute(lname_sql, (email,))
+    lname = cur.fetchall()
+    lname = lname[0][0]
+
+    cur.execute('SELECT * FROM all_posts WHERE email="'+email +'"')
+    posts = cur.fetchall()
+    post_num = len(posts)
+    print(post_num)
+    
+    name = fname + " " + lname
+
+
+    
+
+    
+
+
+    print(pic)
+
+    
+    return render_template('profile.html', pic = pic, name = name, post_num = post_num)
 @app.route('/messages')
 @login_required
 def messages2():
@@ -137,25 +155,9 @@ def messages2():
     con.close()
 
     return render_template('messages.html', messages = messages)
->>>>>>> f6e369bf016cc7e11dd71d98d199da05517fec1c
-
-    lname_sql = 'SELECT lname FROM users WHERE email=?'
-    cur.execute(lname_sql, (email,))
-    lname = cur.fetchall()
-    lname = lname[0][0]
-
-    name = getName()
-
-
-    print(pic)
 
     
-    return render_template('profile.html', pic = pic, name = name)
 
-@app.route('/messages/<reciever>')
-def messages(reciever):
-    con = sql.connect("./static/data/data.db")
-    cur = con.cursor()
 
 @app.route('/messages/<reciever>')
 def messages(reciever):
