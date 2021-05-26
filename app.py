@@ -1,3 +1,4 @@
+from re import M
 from flask import Flask, redirect, flash, render_template, json, jsonify, request, current_app as app
 from datetime import date, datetime
 import os
@@ -66,8 +67,13 @@ con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT)')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "iod" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "day" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
+<<<<<<< HEAD
+=======
+cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
+
+>>>>>>> f6e369bf016cc7e11dd71d98d199da05517fec1c
 con.commit()
 cur.close()
 
@@ -89,6 +95,7 @@ def index():
     
     return render_template('index.html')
 
+<<<<<<< HEAD
 @app.route('/profile')
 def profile():
     con = sql.connect("./static/data/data.db")
@@ -105,6 +112,30 @@ def profile():
     cur.execute(fname_sql, (email,))
     fname = cur.fetchall()
     fname = fname[0][0]
+=======
+@app.route('/messages')
+@login_required
+def messages2():
+
+    email = current_user.get_id()
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    msg = ""
+
+    cur.execute("SELECT * FROM all_messages")
+    bob = cur.fetchall()
+    
+    messages = []
+    for row in bob:
+        message = [row[1],row[2],row[3],row[4],row[5],row[6]]
+        messages.append(message)
+ 
+    cur.close() 
+    con.close()
+
+    return render_template('messages.html', messages = messages)
+>>>>>>> f6e369bf016cc7e11dd71d98d199da05517fec1c
 
     lname_sql = 'SELECT lname FROM users WHERE email=?'
     cur.execute(lname_sql, (email,))
@@ -124,6 +155,15 @@ def messages(reciever):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
+@app.route('/messages/<reciever>')
+def messages(reciever):
+
+    email = current_user.get_id()
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    msg = ""
+
     fname_sql = 'SELECT fname FROM users WHERE email=?'
     cur.execute(fname_sql, (reciever,))
     fname = cur.fetchall()
@@ -135,7 +175,13 @@ def messages(reciever):
     lname = lname[0][0]
 
     reciever_name = fname + " " + lname
-    return render_template('messages.html', reciever = reciever, name = reciever_name)
+
+    cur.execute("INSERT INTO all_messages(email1, email2, name1, name2, message, date) VALUES((?),(?),(?),(?),(?),(?))", (email,reciever,getName(),reciever_name,msg,datetime.datetime.now()))
+    con.commit()
+
+    #cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever,msg,datetime.datetime.now()))
+
+    return render_template('messages.html', reciever = reciever, name = reciever_name, messages = "bob")
 
 @app.route('/settings')
 @login_required
@@ -229,7 +275,7 @@ def home():
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
         posts.append(post)
     cur.close()
     
@@ -280,12 +326,8 @@ def post():
 
     title = request.form.get("title", False)
     description = request.form.get("description", False)
-    #day = today.strftime("%B %d, %Y")
-    x = datetime.datetime.now()
-
-    date = x.strftime("%b") + " " + x.strftime("%d") + "," + x.strftime("%Y") 
-
-    iod = x
+    day = today.strftime("%B %d, %Y")
+    date = datetime.datetime.now()
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
@@ -297,14 +339,14 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, iod) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email, profPic,iod))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email, profPic, day))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
         posts.append(post)
 
     con.commit()
@@ -448,16 +490,16 @@ def like(id):
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
         posts.append(post)
     cur.close()
     for post in posts:
-        if id == post[10]:
+        if id == post[2]:
             if ","+current_user.get_id() not in post[5]:
                 con = sql.connect("./static/data/data.db")
                 cur = con.cursor()
-                cur.execute("UPDATE all_posts SET likesAmount=likesAmount+1 WHERE date='"+post[10]+"'")
-                cur.execute("UPDATE all_posts SET likes=trim(',"+current_user.get_id()+"') WHERE date='"+post[10]+"'")
+                cur.execute("UPDATE all_posts SET likesAmount=likesAmount+1 WHERE date='"+post[2]+"'")
+                cur.execute("UPDATE all_posts SET likes=trim(',"+current_user.get_id()+"') WHERE date='"+post[2]+"'")
                 con.commit()
 
                 cur.close()
@@ -466,8 +508,8 @@ def like(id):
                 
             con = sql.connect("./static/data/data.db")
             cur = con.cursor()
-            cur.execute("UPDATE all_posts SET likesAmount=likesAmount-1 WHERE date='"+post[10]+"'")
-            cur.execute("UPDATE all_posts SET likes=likes+',"+current_user.get_id()+"' WHERE date='"+post[10]+"'")
+            cur.execute("UPDATE all_posts SET likesAmount=likesAmount-1 WHERE date='"+post[2]+"'")
+            cur.execute("UPDATE all_posts SET likes=likes+',"+current_user.get_id()+"' WHERE date='"+post[2]+"'")
             con.commit()
 
             con.close()
@@ -577,13 +619,8 @@ def change_email():
 @app.route('/change_name', methods = ['POST', 'GET'])
 @login_required
 def change_name():
-    
-    
+      
     full_name = getName()
-
-    
-    
-    
 
     fname = request.form.get('fname')
     lname = request.form.get('lname')
@@ -593,6 +630,7 @@ def change_name():
     cur.execute("UPDATE users SET fname='"+fname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE users SET lname='"+lname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE all_posts SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")  
+    cur.execute("UPDATE all_comments SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")  
 
     full_name = fname + " " + lname
     con.commit()
@@ -603,9 +641,6 @@ def change_name():
     
 def getName():
     email = current_user.get_id()
-    
-    
-    
     
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
