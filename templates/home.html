@@ -218,7 +218,9 @@
                             <img style="float: left; height:50px; width:50px; border-radius: 360%;" src="../static/profile/{{ posts[i][9] }}">
                             {%endif%}
                             <p class="name" style="float: top; text-align: left; border-bottom:1px solid rgb(0, 0, 0); width: 100%; height: 50px;"> &nbsp {{ posts[i][3] }}</p> 
+                            
                           </div>
+                            
                             <h2 class="title">{{ posts[i][1] }}</h2>
                             <h5 class="date" >{{ posts[i][10] }}</h5>
                             <img class="fakeimg" src="../static/posts/{{ posts[i][0] }}" style="height: 400px; background-color: white;">
@@ -263,6 +265,7 @@
                             {%endif%}
                             <p class="name" style="float: top; text-align: left; border-bottom:1px solid rgb(0, 0, 0); width: 100%; height: 50px;"> &nbsp {{ posts[i][3] }}</p> 
                             </div>
+                            <a href="/messages/{{posts[i][8]}}">Messages</a>
                             <h2 class="title">{{ posts[i][1] }}</h2>
                             <h5 class="date" >{{ posts[i][10] }}</h5>
                             <p style="background-color: #aaa;" class="description">{{ posts[i][4] }}</p>

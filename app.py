@@ -68,6 +68,8 @@ cur = con.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "day" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1","email2", "message", "date")')
+
 con.commit()
 cur.close()
 
@@ -89,10 +91,34 @@ def index():
     
     return render_template('index.html')
 
+@app.route('/messages/<reciever>')
+def messages(reciever):
+
+    email = current_user.get_id()
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+
+
+    cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever))
+
+
+    fname_sql = 'SELECT fname FROM users WHERE email=?'
+    cur.execute(fname_sql, (reciever,))
+    fname = cur.fetchall()
+    fname = fname[0][0]
+
+    lname_sql = 'SELECT lname FROM users WHERE email=?'
+    cur.execute(lname_sql, (reciever,))
+    lname = cur.fetchall()
+    lname = lname[0][0]
+
+    reciever_name = fname + " " + lname
+    return render_template('messages.html', reciever = reciever, name = reciever_name)
+
 @app.route('/settings')
 @login_required
 def settings():
-    
     
     full_name = getName()
     global change
