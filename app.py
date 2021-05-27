@@ -120,15 +120,11 @@ def friend(friend):
             cur.execute("INSERT INTO friendships(party1, party2) VALUES((?),(?))", (email,friend))
             con.commit()
             con.close()
-            
-    
-    
 
-    
     return redirect('/friends')
 
 @app.route('/friends')
-def l():
+def friends():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
     email = current_user.get_id()
@@ -151,7 +147,7 @@ def l():
 
 @app.route('/profile')
 @login_required
-def profile(person):
+def profile():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
@@ -190,6 +186,49 @@ def profile(person):
     name = fname + " " + lname
     
     return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
+
+@app.route('/profile/<email>')
+@login_required
+def profile(email):
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    #check if email exists
+
+    follows = "Follow+"
+    cur.execute('SELECT following FROM followers WHERE following="'+email+'"')
+    followings = cur.fetchall()
+    for follower in followings:
+        if follower[0] == email:
+            follows = "Follow(-)"
+
+    pic_sql = 'SELECT profilePic FROM users WHERE email=?'
+    cur.execute(pic_sql, (email,))
+    pic = cur.fetchall()
+    pic = pic[0][0]
+
+    fname_sql = 'SELECT fname FROM users WHERE email=?'
+    cur.execute(fname_sql, (email,))
+    fname = cur.fetchall()
+    fname = fname[0][0]
+
+    lname_sql = 'SELECT lname FROM users WHERE email=?'
+    cur.execute(lname_sql, (email,))
+    lname = cur.fetchall()
+    lname = lname[0][0]
+
+    cur.execute('SELECT * FROM all_posts WHERE email="'+email +'"')
+    posts = cur.fetchall()
+    post_num = len(posts)
+
+    cur.execute('SELECT * FROM followers WHERE following="'+email +'"')
+    follow = cur.fetchall()
+    followersAmt = len(follow)
+    
+    name = fname + " " + lname
+    
+    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
+
 @app.route('/messages')
 @login_required
 def messages2():
