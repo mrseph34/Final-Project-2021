@@ -67,9 +67,12 @@ body {
                         <h5 class="font-weight-bold mb-0 d-block">{{post_num}}</h5><small class="text-muted"> <i class="fa fa-picture-o mr-1"></i>Posts</small>
                     </li>
                     <li class="list-inline-item">
+                        <h5 class="font-weight-bold mb-0 d-block">0{{friends}}</h5><small class="text-muted"> <i class="fa fa-user-circle-o mr-1"></i>Friends</small>
+                    </li>
+                    <li class="list-inline-item">
                         <h5 class="font-weight-bold mb-0 d-block">{{followers}}</h5><small class="text-muted"> <i class="fa fa-user-circle-o mr-1"></i>Followers</small>
                     </li>
-                    <br><a href="" class="button" onclick="follow('{{email}}')">{{follows}}</a>
+                    <br><a style="float: right;" href="" class="button" onclick="follow('{{email}}')">{{follows}}&nbsp</a>
                 </ul>
             </div>
 
