@@ -83,14 +83,14 @@
                         * {
                         box-sizing: border-box;
                         }
-                        
+
                         /* Add a gray background color with some padding */
                         body {
                           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
                           padding: 20px;
                           background: #f1f1f1;
                         }
-                        
+
                         /* Header/Blog Title */
                         .header {
                           padding: 30px;
@@ -98,28 +98,28 @@
                           text-align: center;
                           background: white;
                         }
-                        
+
                         /* Create two unequal columns that floats next to each other */
                         /* Left column */
-                        .leftcolumn {   
+                        .leftcolumn {
                           float: center;
                           width: 50%;
                         }
-                        
+
                         /* Right column */
                         .rightcolumn {
                           float: left;
                           width: 25%;
                           padding-left: 20px;
                         }
-                        
+
                         /* Fake image */
                         .fakeimg {
                           background-color: #aaa;
                           width: 100%;
                           padding: 20px;
                         }
-                        
+
                         /* Add a card effect for articles */
                         .card {
                            background-color: white;
@@ -127,14 +127,14 @@
                            margin-top: 20px;
                            border-radius: 4px;
                         }
-                        
+
                         /* Clear floats after the columns */
                         .row:after {
                           content: "";
                           display: table;
                           clear: both;
                         }
-                        
+
                         /* Footer */
                         .footer {
                           padding: 20px;
@@ -142,10 +142,10 @@
                           background: #ddd;
                           margin-top: 20px;
                         }
-                        
+
                         /* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
                         @media screen and (max-width: 800px) {
-                          .leftcolumn, .rightcolumn {   
+                          .leftcolumn, .rightcolumn {
                             width: 100%;
                             padding: 0;
                           }
@@ -187,17 +187,17 @@
                         <input type="text" id="description" name="description" ><br>
                         <input type="submit">
                       </form>-->
-                      
-    
+
+
         {% if not posts %}
-      
+
             <p>POSTLESS HOOTERS</p>
-  
+
         {% endif %}
-  
+
         {% if posts %}
-        {% set poster = [] %}  
-          {% for post in posts%}    
+        {% set poster = [] %}
+          {% for post in posts%}
           {% set i = loop.index-1 %}
             {% if posts[i][0] != "" %}
 
@@ -218,10 +218,10 @@
                             {%else%}
                             <a href = "/profile/{{posts[i][8]}}"><img style="float: left; height:50px; width:50px; border-radius: 360%;" src="../static/profile/{{ posts[i][9] }}"></a>
                             {%endif%}
-                            <p class="name" style="float: top; text-align: left; border-bottom:1px solid rgb(0, 0, 0); width: 100%; height: 50px;"> &nbsp {{ posts[i][3] }}</p> 
+                            <p class="name" style="float: top; text-align: left; border-bottom:1px solid rgb(0, 0, 0); width: 100%; height: 50px;"> &nbsp {{ posts[i][3] }}</p>
                             <a href="/friends/{{posts[i][8]}}">Add friend</a>
                           </div>
-                            
+
                             <h2 class="title">{{ posts[i][1] }}</h2>
                             <h5 class="date" >{{ posts[i][10] }}</h5>
                             <img class="fakeimg" src="../static/posts/{{ posts[i][0] }}" style="height: 400px; background-color: white;">
@@ -231,7 +231,7 @@
                             <br><br>
                             <div style="display: none; overflow: scroll; height: 100px; text-align: left;" class="comments" id="commento{{i}}">
 
-                              
+
                               <div id="comment-{{i}}"></div>
                               {% for comment in comments %}
                                 {% set ii = loop.index-1 %}
@@ -239,7 +239,7 @@
                                   {% if comments[ii][0] == posts[i][2] %}
 
                                     <p style="font-size: 12px;"><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
-                                
+
                                   {%endif%}
                                   {%endif%}
                               {%endfor%}
@@ -251,7 +251,7 @@
                         </div>
                     </div>
 
-                   
+
                     {% else %}
 
                     <div class="row" >
@@ -264,7 +264,7 @@
                             {%else%}
                             <a href="/profile/{{posts[i][8]}}"><img style="float: left; height:50px; width:50px; border-radius: 360%;" src="../static/profile/{{ posts[i][9] }}"></a>
                             {%endif%}
-                            <p class="name" style="float: top; text-align: left; border-bottom:1px solid rgb(0, 0, 0); width: 100%; height: 50px;"> &nbsp {{ posts[i][3] }}</p> 
+                            <p class="name" style="float: top; text-align: left; border-bottom:1px solid rgb(0, 0, 0); width: 100%; height: 50px;"> &nbsp {{ posts[i][3] }}</p>
                             <a href="/friends/{{posts[i][8]}}">Add friend</a>
                             </div>
                             <!-- <a href="/messages/{{posts[i][8]}}">Messages</a> -->
@@ -282,7 +282,7 @@
                                   {% if comments[ii][0] == posts[i][2] %}
 
                                     <p style="font-size: 12px;"><strong>{{ comments[ii][1] }}</strong> {{ comments[ii][2] }} ({{comments[ii][3]}})</p>
-                                
+
                                   {%endif%}
                                   {%endif%}
                               {%endfor%}
@@ -296,7 +296,7 @@
 
                 {%endif%}
           {%endfor%}
-  
+
         {% endif %}
 
   <!--
@@ -317,7 +317,7 @@
       <p>Some text..</p>
     </div>
   </div>
-</div> --> 
+</div> -->
 
 <script>
   i=0;
@@ -327,7 +327,7 @@
             i=2
             bb = 0
         }
-        if (check.includes(email)==false && i<2){ 
+        if (check.includes(email)==false && i<2){
           i=1
           bb = 1
         }
@@ -344,7 +344,7 @@
         i=i+1
         ajax_follow(post)
     }
-    
+
     function ajax_follow(name) {
     $.ajax({url: "/like/" + name, success: function(result){
     }});}
@@ -373,7 +373,7 @@
             $("#"+its).append("<p><strong>"+name+"</strong> "+value+" (now)</p>")
         });
     });
-    
+
     function showComments(stuff){
       $(document).ready(function () {
         if ($("#"+stuff).is(":hidden")){

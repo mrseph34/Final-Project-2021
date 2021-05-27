@@ -87,11 +87,11 @@ defPic = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxEHBhERBxA
 
 @app.route('/')
 def index():
-    
+
     if current_user.get_id() != None:
 
         return  redirect("/home", code=302)
-    
+
     return render_template('index.html')
 
 
@@ -100,7 +100,7 @@ def friend(friend):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
     email = current_user.get_id()
-    
+
     if friend != email:
         cur.execute('SELECT * FROM friendships WHERE party1="'+email+'" OR party2="'+email+'"')
         friends = cur.fetchall()
@@ -111,11 +111,11 @@ def friend(friend):
             if thing[0] == email:
                 if thing[1] == friend:
                     friends_already = True
-                    
+
             if thing[1] == email:
                 if thing[0] == friend:
                     friends_already = True
-                
+
         if friends_already == False:
             cur.execute("INSERT INTO friendships(party1, party2) VALUES((?),(?))", (email,friend))
             con.commit()
@@ -142,7 +142,7 @@ def friends():
             list.append(friend[1])
         else:
             list.append(friend[0])
-        
+
     return render_template('friends.html', list = list, email = email)
 
 @app.route('/profile')
@@ -182,14 +182,14 @@ def profile():
     cur.execute('SELECT * FROM followers WHERE following="'+email +'"')
     follow = cur.fetchall()
     followersAmt = len(follow)
-    
+
     name = fname + " " + lname
-    
+
     return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
 
 @app.route('/profile/<email>')
 @login_required
-def other_user_profile(email):
+def profile2(email):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
@@ -224,9 +224,9 @@ def other_user_profile(email):
     cur.execute('SELECT * FROM followers WHERE following="'+email +'"')
     follow = cur.fetchall()
     followersAmt = len(follow)
-    
+
     name = fname + " " + lname
-    
+
     return render_template('other_user_profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
 
 @app.route('/messages')
@@ -241,18 +241,18 @@ def messages2():
 
     cur.execute("SELECT * FROM all_messages")
     bob = cur.fetchall()
-    
+
     messages = []
     for row in bob:
         message = [row[1],row[2],row[3],row[4],row[5],row[6]]
         messages.append(message)
- 
-    cur.close() 
+
+    cur.close()
     con.close()
 
     return render_template('messages.html', messages = messages)
 
-    
+
 
 
 @app.route('/messages/<reciever>')
@@ -286,12 +286,12 @@ def messages(reciever):
 @app.route('/settings')
 @login_required
 def settings():
-    
+
     full_name = getName(None)
     global change
     changed = change
     change = ""
-    
+
     return render_template('settings.html', full_name = full_name, match = False, ematch = False, change=changed)
 
 @app.route('/ForgotPassword')
@@ -299,7 +299,7 @@ def forgotPassword():
     if current_user.get_id() != None:
 
         return  redirect("/home", code=302)
-        
+
     return render_template("change.html",info="Enter your email address associated with the account:")
 
 @app.route('/ForgotPassword/<email>')
@@ -328,7 +328,7 @@ def forgotPassword2(email):
             cur.close()
             resetPassword(email,tempPass)
             return render_template("change.html", info = "A change password email has been sent to "+email)
-    
+
     cur.close()
     con.close()
     return render_template("change.html", info = "Email does not exists please enter the correct email address associated with the account:")
@@ -338,7 +338,7 @@ def forgotPassword2(email):
 def home():
 
     full_name = getName(None)
-    
+
     profilePic = []
 
     con = sql.connect("./static/data/data.db")
@@ -358,19 +358,19 @@ def home():
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
-       
+
     cur.execute("SELECT profilePic,email from users")
     pic = cur.fetchall()
     for row in pic:
         profilePic.append(row)
- 
-    
+
+
 
     cur.close()
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
-    
+
     cur.execute("SELECT * from all_posts")
     rows = cur.fetchall()
     posts = []
@@ -378,10 +378,10 @@ def home():
         post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
         posts.append(post)
     cur.close()
-    
+
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
-    
+
     cur.execute("SELECT * from all_comments")
     rowes = cur.fetchall()
     comments = []
@@ -395,33 +395,45 @@ def home():
 @app.route('/home/post')
 @login_required
 def homePost():
-    
-    
+
+
     full_name = getName(None)
     email = current_user.get_id()
 
-    
+
 
     return render_template('posts.html', type=type)
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
-    
-    
+
+
     full_name = getName(None)
     email = current_user.get_id()
 
-    
+
 
 
     img = request.files['img']
     imgname = img.filename
     if img.filename != "":
-       
-        filename = secure_filename(img.filename)
+        imgname = imgname.replace(" ","_")
+        filename = secure_filename(imgname)
         img.save(os.path.join(app.config['POSTS_FOLDER'], filename))
-        
+        postName = imgname
+
         flash('Image successfully uploaded and displayed below')
+
+    vid = request.files['vid']
+    if vid.filename != "":
+        vidname = vid.filename
+        vidname = vidname.replace(" ","_")
+        filename = secure_filename(vidname)
+        vid.save(os.path.join(app.config['POSTS_FOLDER'], filename))
+        postName = vidname
+
+        flash('Image successfully uploaded and displayed below')
+
 
 
     title = request.form.get("title", False)
@@ -439,7 +451,7 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email, profPic, day))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, "[]", email, profPic, day))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
@@ -451,32 +463,32 @@ def post():
 
     con.commit()
     con.close()
-        
-    
+
+
     return redirect("/home", code=302)
 
 @app.route('/change_pic',methods = ['POST', 'GET'])
 @login_required
 def profilePic():
-    
-    
+
+
     full_name = getName(None)
     email = current_user.get_id()
     global change
     img = request.files['prof']
     imgname = img.filename
     if img.filename != "":
-       
+
         filename = secure_filename(img.filename)
         img.save(os.path.join(app.config['PROFILE_FOLDER'], filename))
-       
+
         flash('Image successfully uploaded and displayed below')
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
     cur.execute("UPDATE users SET profilePic = '"+imgname+"' WHERE email='"+current_user.get_id()+"'")
-    cur.execute("UPDATE all_posts SET profilePic='"+imgname+"' Where email='"+current_user.get_id()+"'")     
+    cur.execute("UPDATE all_posts SET profilePic='"+imgname+"' Where email='"+current_user.get_id()+"'")
 
     con.commit()
     cur.close()
@@ -484,13 +496,13 @@ def profilePic():
 
     change = "PROFILE PIC CHANGED SUCCESSFULLY!"
 
-    return redirect('/settings', code=302) 
+    return redirect('/settings', code=302)
 
 @app.route('/register',methods = ['POST', 'GET'])
 def register():
     global defPic
-     
-    
+
+
 
     fname = request.form.get('fname', False)
     lname = request.form.get('lname', False)
@@ -513,11 +525,11 @@ def register():
         if row[0].upper() == email.upper():
             huh = "EMAIL EXISTS"
             return render_template('index.html', failed2 = "Email already exists")
-        
+
     if huh == "EMAIL DO NOT EXIST":
         cur.execute("INSERT INTO users(fname, lname, email, password, profilePic) VALUES((?),(?),(?),(?),(?))", (fname, lname, email, password,defPic))
         cur.execute('CREATE TABLE' + insert  + '("post" TEXT, "name" TEXT)')
-        
+
 
         con.commit()
 
@@ -539,7 +551,7 @@ def login():
     cur.execute('SELECT * FROM users')
 
     all = cur.fetchall()
-    
+
     exists = False
 
     for row in all:
@@ -548,11 +560,11 @@ def login():
                 exists = True
                 if row[3] == password:
                     name = row[0]
-                    
-                    
+
+
                     Us = load_user(email)
                     login_user(Us, remember = email)
-                    
+
                 elif name != row[0]:
                     return render_template('index.html', failed = "Password is incorrect")
 
@@ -560,7 +572,7 @@ def login():
             return render_template('index.html', failed = "Email is not registered")
 
 
-    
+
     fname_sql = 'SELECT fname FROM users WHERE email=?'
     cur.execute(fname_sql, (email,))
     fname = cur.fetchall()
@@ -575,15 +587,15 @@ def login():
 
     cur.close()
     con.close()
-    
+
     return redirect("/home", code=302)
 
 
 @app.route('/like/<id>',methods = ['POST', 'GET'])
 @login_required
 def like(id):
-    
-    
+
+
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
     cur.execute("SELECT * from all_posts")
@@ -605,7 +617,7 @@ def like(id):
                 cur.close()
                 con.close()
                 return "successDrop"
-                
+
             con = sql.connect("./static/data/data.db")
             cur = con.cursor()
             cur.execute("UPDATE all_posts SET likesAmount=likesAmount-1 WHERE date='"+post[2]+"'")
@@ -646,7 +658,7 @@ def follow(following):
 @app.route('/comment/<comment>/<id>',methods = ['POST', 'GET'])
 @login_required
 def comments(comment,id):
-    
+
     full_name = getName(None)
 
     con = sql.connect("./static/data/data.db")
@@ -665,22 +677,22 @@ def comments(comment,id):
 @app.route('/change_password', methods = ['POST', 'GET'])
 @login_required
 def change_pass():
-    
-    
+
+
     full_name = getName(None)
-    
-    
+
+
     old_pass = request.form.get('old_pass')
     new_pass = request.form.get('new_pass')
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
-    
+
     cur.execute("SELECT password FROM users WHERE email='"+current_user.get_id()+"'")
     curent_password = cur.fetchall()
     curent_password = curent_password[0][0]
     print(curent_password)
-    
+
     con.commit()
     cur.close()
 
@@ -699,23 +711,23 @@ def change_pass():
         con.commit()
         cur.close()
         return render_template('settings.html', full_name = full_name, exists = match, ematch = False)
-        
+
 @app.route('/change_email', methods = ['POST', 'GET'])
 @login_required
 def change_email():
 
 
-    
-    
+
+
     full_name = getName(None)
 
     new_email = request.form.get('new_email')
-    
-    
+
+
 
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
-    
+
 
     cur.execute('SELECT email FROM users')
 
@@ -746,7 +758,7 @@ def change_email():
 @app.route('/change_name', methods = ['POST', 'GET'])
 @login_required
 def change_name():
-      
+
     full_name = getName(None)
 
     fname = request.form.get('fname')
@@ -756,8 +768,8 @@ def change_name():
     cur = con.cursor()
     cur.execute("UPDATE users SET fname='"+fname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE users SET lname='"+lname+"' WHERE email='"+current_user.get_id()+"'")
-    cur.execute("UPDATE all_posts SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")  
-    cur.execute("UPDATE all_comments SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")  
+    cur.execute("UPDATE all_posts SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")
+    cur.execute("UPDATE all_comments SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")
 
     full_name = fname + " " + lname
     con.commit()
@@ -765,12 +777,12 @@ def change_name():
     global change
     change = "NAME CHANGED SUCCESSFULLY!"
     return redirect("/settings", code = 302)
-    
+
 def getName(email):
 
     if email == None:
         email = current_user.get_id()
-        
+
         con = sql.connect("./static/data/data.db")
         cur = con.cursor()
         cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
@@ -804,17 +816,17 @@ def getName(email):
         full_name = fname + " " + lname
         con.commit()
         cur.close()
-    
+
     return full_name
 
 @app.route('/logout',methods = ['POST', 'GET'])
 @login_required
 def logout():
-    
+
     logout_user()
 
     return redirect("/", code=302)
 
 
 if __name__ == '__main__':
- app.run(debug=True, host='0.0.0.0') 
+ app.run(debug=True, host='0.0.0.0')
