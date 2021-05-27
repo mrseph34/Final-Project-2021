@@ -189,7 +189,7 @@ def profile():
 
 @app.route('/profile/<email>')
 @login_required
-def profile(email):
+def profile2(email):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
@@ -417,11 +417,23 @@ def post():
     img = request.files['img']
     imgname = img.filename
     if img.filename != "":
-       
-        filename = secure_filename(img.filename)
+        imgname = imgname.replace(" ","_")
+        filename = secure_filename(imgname)
         img.save(os.path.join(app.config['POSTS_FOLDER'], filename))
+        postName = imgname
         
         flash('Image successfully uploaded and displayed below')
+
+    vid = request.files['vid']
+    if vid.filename != "":
+        vidname = vid.filename
+        vidname = vidname.replace(" ","_")
+        filename = secure_filename(vidname)
+        vid.save(os.path.join(app.config['POSTS_FOLDER'], filename))
+        postName = vidname
+        
+        flash('Image successfully uploaded and displayed below')
+
 
 
     title = request.form.get("title", False)
@@ -439,7 +451,7 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (imgname, title, date, full_name, description, "[]", 0, "[]", email, profPic, day))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, "[]", email, profPic, day))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
