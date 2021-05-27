@@ -94,6 +94,61 @@ def index():
     
     return render_template('index.html')
 
+
+@app.route('/friends/<friend>')
+def friend(friend):
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    email = current_user.get_id()
+    
+    if friend != email:
+        cur.execute('SELECT * FROM friendships WHERE party1="'+email+'" OR party2="'+email+'"')
+        friends = cur.fetchall()
+
+        friends_already = False
+
+        for thing in friends:
+            if thing[0] == email:
+                if thing[1] == friend:
+                    friends_already = True
+                    
+            if thing[1] == email:
+                if thing[0] == friend:
+                    friends_already = True
+                
+        if friends_already == False:
+            cur.execute("INSERT INTO friendships(party1, party2) VALUES((?),(?))", (email,friend))
+            con.commit()
+            con.close()
+            
+    
+    
+
+    
+    return redirect('/friends')
+
+@app.route('/friends')
+def l():
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    email = current_user.get_id()
+
+    cur.execute('SELECT * FROM friendships WHERE party1="'+email+'" OR party2="'+email+'"')
+    friends_list = cur.fetchall()
+    con.commit()
+    con.close()
+    list = []
+    names = []
+
+    for friends in friends_list:
+        friend = [getName(friends[0]),getName(friends[1])]
+        if friends[0] == email:
+            list.append(friend[1])
+        else:
+            list.append(friend[0])
+        
+    return render_template('friends.html', list = list, email = email)
+
 @app.route('/profile')
 @login_required
 def profile(person):
