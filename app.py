@@ -189,7 +189,7 @@ def profile():
 
 @app.route('/profile/<email>')
 @login_required
-def profile(email):
+def other_user_profile(email):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
@@ -227,7 +227,7 @@ def profile(email):
     
     name = fname + " " + lname
     
-    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
+    return render_template('other_user_profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
 
 @app.route('/messages')
 @login_required
