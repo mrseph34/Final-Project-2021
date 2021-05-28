@@ -100,26 +100,28 @@ def friend(friend):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
     email = current_user.get_id()
+    friends_already = False
 
-    if friend != email:
-        cur.execute('SELECT * FROM friendships WHERE party1="'+email+'" OR party2="'+email+'"')
-        friends = cur.fetchall()
+    cur.execute('SELECT * FROM friendships WHERE (party1="'+email+'" AND party2="'+friend+'") OR (party2="'+email+'" AND party1="'+friend+'")')
+    friends = cur.fetchall()
+    for thing in friends:
+        if thing[0] == email:
+            if thing[1] == friend:
+                friends_already = True
 
-        friends_already = False
+        if thing[1] == email:
+            if thing[0] == friend:
+                friends_already = True
 
-        for thing in friends:
-            if thing[0] == email:
-                if thing[1] == friend:
-                    friends_already = True
+    if friends_already == False:
+        cur.execute("INSERT INTO friendships(party1, party2) VALUES((?),(?))", (email,friend))
+        con.commit()
+        con.close()
+    else:
+        cur.execute("DELETE FROM friendships WHERE (party1='"+email+"' AND party2='"+friend+"') OR (party2='"+email+"' AND party1='"+friend+"')")
+        con.commit()
+        con.close()
 
-            if thing[1] == email:
-                if thing[0] == friend:
-                    friends_already = True
-
-        if friends_already == False:
-            cur.execute("INSERT INTO friendships(party1, party2) VALUES((?),(?))", (email,friend))
-            con.commit()
-            con.close()
 
     return redirect('/friends')
 
@@ -153,13 +155,6 @@ def profile():
 
     email = current_user.get_id()
 
-    follows = "Follow+"
-    cur.execute('SELECT following FROM followers WHERE following="'+email+'"')
-    followings = cur.fetchall()
-    for follower in followings:
-        if follower[0] == email:
-            follows = "Follow(-)"
-
     pic_sql = 'SELECT profilePic FROM users WHERE email=?'
     cur.execute(pic_sql, (email,))
     pic = cur.fetchall()
@@ -185,13 +180,15 @@ def profile():
 
     name = fname + " " + lname
 
-    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
+    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt)
 
 @app.route('/profile/<email>')
 @login_required
 def profile2(email):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
+
+    email2 = current_user.get_id()
 
     #check if email exists
 
@@ -200,7 +197,16 @@ def profile2(email):
     followings = cur.fetchall()
     for follower in followings:
         if follower[0] == email:
-            follows = "Follow(-)"
+            follows = "UnFollow"
+
+    friendo = "+Friend"
+    cur.execute('SELECT * FROM friendships WHERE party1="'+email+'" OR party2="'+email+'"')
+    friendings = cur.fetchall()
+    for friendy in friendings:
+        if friendy[0] == email and friendy[1] == email2:
+            friendo = "UnFriend"
+        if friendy[1] == email and friendy[0] == email2:
+            friendo = "UnFriend"
 
     pic_sql = 'SELECT profilePic FROM users WHERE email=?'
     cur.execute(pic_sql, (email,))
@@ -225,9 +231,13 @@ def profile2(email):
     follow = cur.fetchall()
     followersAmt = len(follow)
 
+    cur.execute('SELECT * FROM friendships WHERE party1="'+email +'" OR party2="'+email+'"')
+    friendl = cur.fetchall()
+    friendAmt = len(friendl)
+
     name = fname + " " + lname
 
-    return render_template('other_user_profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows)
+    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows, isProf="no", friends=friendAmt, friendo=friendo)
 
 @app.route('/messages')
 @login_required
@@ -641,12 +651,12 @@ def follow(following):
     followings = cur.fetchall()
     for follower in followings:
         if follower[0] == email:
-            follows = "Follow(-)"
+            follows = "UnFollow"
 
     if follows == "Follow+":
         cur.execute("INSERT INTO followers(follower,following) VALUES((?),(?))", (email,following))
         con.commit()
-    if follows == "Follow(-)":
+    if follows == "UnFollow":
         cur.execute("DELETE FROM followers WHERE follower='"+email+"' AND following='"+following+"'")
         con.commit()
 
