@@ -1,7 +1,8 @@
 from re import M
-from flask import Flask, redirect, flash, render_template, json, jsonify, request, current_app as app
+from flask import Flask, redirect, flash, render_template, json, jsonify, make_response, request, current_app as app
 from datetime import date, datetime
 import os
+import time
 import flask_login
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 import requests
@@ -66,11 +67,11 @@ def load_user(user_id):
 con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
-cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "security question" TEXT, "security answer" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "username" TEXT, "security question" TEXT, "security answer" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower" TEXT,"following" TEXT)')
-cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1" TEXT,"party2" TEXT)')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" TEXT, "email" TEXT, "profilePic" TEXT, "day" TEXT, "banner" TEXT)')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date","email")')
+cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1" TEXT,"party2" TEXT,"accepted" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" INTEGER, "email" TEXT, "profilePic" TEXT, "day" TEXT, "banner" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date", "email", "profilePic")')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
 
 con.commit()
@@ -84,6 +85,95 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 full_name = ""
 change = ""
 defPic = "data:image/jpeg;base64,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"
+
+tempPosts = []
+postsDB = ""
+posts = 0
+tempComments = []
+commentsDB = ""
+comments = 0
+def reloadDB():
+    global tempPosts
+    global postsDB
+    global posts
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * from all_posts")
+    rows = cur.fetchall()
+    tempPosts = []
+    for row in rows:
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
+        tempPosts.append(post)
+    cur.close()
+    postsDB = tempPosts  # The mock database
+    posts = len(tempPosts)  # num posts to generate
+
+    global tempComments
+    global commentsDB
+    global comments
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * from all_comments")
+    rows = cur.fetchall()
+    tempComments = []
+    for row in rows:
+        comment = [row[0],row[1],row[2],row[3],row[4],row[5]]
+        tempComments.append(comment)
+    cur.close()
+    commentsDB = tempComments  # The mock database
+    comments = len(tempComments)  # num posts to generate
+
+reloadDB()
+
+quantity = 3  # num posts to return per request
+
+@app.before_request
+def before_request():
+    reloadDB()
+    # app.logger.info("before_request")
+
+@app.route("/load")
+def load():
+    """ Route to return the posts """
+
+    time.sleep(0.2)  # Used to simulate delay
+
+    if request.args:
+        counter = int(request.args.get("c"))  # The 'counter' value sent in the QS
+
+        if counter == 0:
+            print(f"Returning posts 0 to {quantity}")
+            # Slice 0 -> quantity from the db
+            res = make_response(jsonify(postsDB[0: quantity]), 200)
+            res2 = make_response(jsonify(commentsDB[0: quantity]), 200)
+
+        elif counter == posts:
+            print("No more posts")
+            res = make_response(jsonify({}), 200)
+
+        else:
+            print(f"Returning posts {counter} to {counter + quantity}")
+            # Slice counter -> quantity from the db
+            res = make_response(jsonify(postsDB[counter: counter + quantity]), 200)
+    
+    return res
+
+@app.route("/load2")
+def load2():
+    """ Route to return the posts """
+
+    time.sleep(0.2)  # Used to simulate delay
+
+    if request.args:
+        counter = int(request.args.get("c"))  # The 'counter' value sent in the QS
+
+        # Slice counter -> quantity from the db
+        res = make_response(jsonify(commentsDB[counter: len(commentsDB)]), 200)
+    
+    return res
 
 @app.route('/')
 def index():
@@ -178,9 +268,13 @@ def profile():
     follow = cur.fetchall()
     followersAmt = len(follow)
 
+    cur.execute('SELECT * FROM friendships WHERE party1="'+email +'" OR party2="'+email+'"')
+    friendl = cur.fetchall()
+    friendAmt = len(friendl)
+
     name = fname + " " + lname
 
-    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt)
+    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, friends=friendAmt)
 
 @app.route('/profile/<email>')
 @login_required
@@ -302,7 +396,25 @@ def settings():
     changed = change
     change = ""
 
-    return render_template('settings.html', full_name = full_name, match = False, ematch = False, change=changed)
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute('SELECT * FROM users WHERE email="'+current_user.get_id()+'"')
+
+    all = cur.fetchall()
+
+    users = []
+
+    for row in all:
+        users.append(row[4])
+
+    pic = users[0]
+    print(pic)
+
+    cur.close()
+    con.close()
+
+    return render_template('settings.html', full_name = full_name, match = False, ematch = False, change=changed, pic=pic)
 
 @app.route('/ForgotPassword')
 def forgotPassword():
@@ -374,6 +486,7 @@ def home():
     for row in pic:
         profilePic.append(row)
 
+    email = current_user.get_id()
 
 
     cur.close()
@@ -396,7 +509,7 @@ def home():
     rowes = cur.fetchall()
     comments = []
     for row in rowes:
-        comment = [row[0],row[1],row[2],row[3],row[4]]
+        comment = [row[0],row[1],row[2],row[3],row[4],row[5]]
         comments.append(comment)
     cur.close()
 
@@ -421,7 +534,7 @@ def post():
     full_name = getName(None)
     email = current_user.get_id()
 
-
+    postName = ""
 
 
     img = request.files['img']
@@ -499,6 +612,7 @@ def profilePic():
 
     cur.execute("UPDATE users SET profilePic = '"+imgname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE all_posts SET profilePic='"+imgname+"' Where email='"+current_user.get_id()+"'")
+    cur.execute("UPDATE all_comments SET profilePic='"+imgname+"' Where email='"+current_user.get_id()+"'")
 
     con.commit()
     cur.close()
@@ -604,8 +718,6 @@ def login():
 @app.route('/like/<id>',methods = ['POST', 'GET'])
 @login_required
 def like(id):
-
-
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
     cur.execute("SELECT * from all_posts")
@@ -634,8 +746,8 @@ def like(id):
             cur.execute("UPDATE all_posts SET likes=likes+',"+current_user.get_id()+"' WHERE date='"+post[2]+"'")
             con.commit()
 
-            con.close()
             cur.close()
+            con.close()
     return "success", 200
 
 @app.route('/follow/<following>',methods = ['POST', 'GET'])
@@ -665,9 +777,9 @@ def follow(following):
 
     return "success", 200
 
-@app.route('/comment/<comment>/<id>',methods = ['POST', 'GET'])
+@app.route('/comment/<comment>/<id>/<prof>',methods = ['POST', 'GET'])
 @login_required
-def comments(comment,id):
+def comments(comment,id,prof):
 
     full_name = getName(None)
 
@@ -676,7 +788,8 @@ def comments(comment,id):
 
     date = datetime.datetime.now()
 
-    cur.execute("INSERT INTO all_comments(id, name, comment, date, email) VALUES((?),(?),(?),(?),(?))", (id, full_name, comment, date, current_user.get_id()))
+    cur.execute("INSERT INTO all_comments(id, name, comment, date, email, profilePic) VALUES((?),(?),(?),(?),(?),(?))", (id, full_name, comment, date, current_user.get_id(), prof))
+    cur.execute("UPDATE all_posts SET comments=comments+1 WHERE date='"+id+"'")
     con.commit()
 
     cur.close()
