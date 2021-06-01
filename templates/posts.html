@@ -2,10 +2,89 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-					<title>HOMEPAGE</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>POST</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script defer src="https://friconix.com/cdn/friconix.js"> </script>
+  </head>
 					<style>
+            body{margin-top:20px; background-color: #eeeeee;}
+
+.well-social-post {
+    border-radius: 0;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding:0;
+}
+
+.well-social-post .glyphicon,
+.well-social-post .fa,
+.well-social-post [class^='icon-'],
+.well-social-post [class*='icon-'] {
+    font-weight: bold;
+    color: #999999;
+}
+
+.well-social-post a,
+.well-social-post a:hover,
+.well-social-post a:active,
+.well-social-post a:focus {
+    text-decoration: none;
+}
+
+.well-social-post .list-inline {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.well-social-post .list-inline li {
+    position: relative;
+}
+
+.well-social-post .list-inline li.active::after {
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    content: "";
+    top: 30px;
+    left: 50%;
+    left: -webkit-calc(50% - 5px);
+    left: -moz-calc(50%-5px);
+    left: calc(50% - 5px);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #dddddd;
+}
+
+.well-social-post .list-inline li.active a {
+    color: #222222;
+    font-weight: bold;
+}
+
+.well-social-post .form-control {
+    width: 100%;
+    min-height: 100px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.well-social-post .list-inline {
+    padding: 10px;
+}
+
+.well-social-post .list-inline li + li {
+    margin-left: 10px;
+}
+
+.well-social-post .post-actions {
+    margin: 0;
+    background-color: #f6f7f8;
+    border-top-color: #e9eaed;
+}
                         .menu-bar {
                           border-radius: 25px;
                           height: -webkit-fit-content;
@@ -119,10 +198,9 @@
                           }
                         }
 					</style>
-          <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-				</head>
 				
-				<body>
+				<body>  
+
 					<ul style="position:fixed; top: -7%; right:22%;" class="menu-bar">
             <div style="float: left; color: whitesmoke;">
             <label for="search">Search:</label>
@@ -136,7 +214,7 @@
             <a href="/logout">LOGOUT</a>
 </ul>
 <br><br><br><br><br>
-<center>
+<!-- <center>
 <form style="border-radius: 8px; background-color: #aaa; width: 50%; text-align: center;" action="/post" method="POST" enctype="multipart/form-data">
   <br><label for="title">Title:</label>
   <input type="text" id="title" name="title" required><br><br>
@@ -166,7 +244,7 @@
 
 </form>
 </center>
-  
+   -->
 
   <!--
   <div class="rightcolumn">
@@ -188,17 +266,97 @@
   </div>
 </div> --> 
 
+
+<div class="container bootstrap snippets bootdey" style="position: relative; transform: translate(25%, 10%);">
+  <div class="row">
+      <div class="col-md-offset-3 col-md-6 col-xs-12">
+          <div class="well well-sm well-social-post">
+      <form action="/post" method="POST" enctype="multipart/form-data">
+          <ul class="list-inline" id='list_PostActions'>
+            <div style="display: inline;">
+              <li style="display: inline-block;" class='active'><a style="color:#007bff;">Blog</a></li>
+              <li style="display: inline-block;"><a style="color:#007bff;">Photo</a></li>
+              <li style="display: inline-block;"><a style="color:#007bff;">Video</a></li>
+            </div>
+           <input style="display: inline-block; right: -280px; position: relative;" type="text" id="title" name="title" placeholder="Title" required='required' minlength="2" maxlength="30">
+          </ul>
+          <textarea class="form-control" placeholder="What's in your mind?" type="text" id="description" name="description" required='required' minlength="5" maxlength="500"></textarea>
+          <ul class='list-inline post-actions'>
+              <li style="display: inline;" id="imgCam" ><a><i type="button" onclick="show('milk')" class="fi-xnsuxl-camera-solid"></i></a></li>
+              <li style="display: inline;" id="vidCam"><a><i type="button" onclick="show('not milk')" class="fi-xnsuxl-videocamera-solid"></i></a></li>
+              <li style="display: inline; opacity: 0;" id="holder" ><a><i class="fi-xnsuxl-camera-solid"></i></a></li>
+              <li style="display: inline;" class='pull-right'><button type="submit" style="left: 83%; position:relative;" class='btn btn-primary btn-xs'>Post</button></li>
+          </ul>
+          <div id="del">
+          <input style="display: none;" type="file" id="img" name="img" accept="image/*">
+          <input style="display: none;" type="file" id="vid" name="vid" accept="video/*">
+          </div>
+        </form>
+          </div>
+      </div>
+  </div>
+</div> 
+
+
+
 <script>
+
+$(document).ready(function(){
+  $("#imgCam").hide()
+  $("#vidCam").hide()
+  $("#holder").show()
+  $("#vid").hide()
+  $("#img").hide()
+});
+
+$(function(){
+    var postActions   = $( '#list_PostActions' );
+    var currentAction = $( '#list_PostActions li.active' );
+    if ( currentAction.length === 0 ) {
+        postActions.find( 'li:first' ).addClass( 'active' );
+    }
+    postActions.find( 'li' ).on( 'click', function( e ) {
+        e.preventDefault();
+        var self = $( this );
+        if ( self === currentAction ) {return;}
+        // else
+        if (self.text() == "Photo") {
+          $(".list-inline post-actions").html('<li style="display: inline;opacity: 0;" id="imgCam" ><a><i type="button" onclick="show("milk")" class="fi-xnsuxl-camera-solid"></i></a></li> <li style="display: inline;" class="pull-right"><button type="submit" style="left: 79%; position:relative;" class="btn btn-primary btn-xs">Post</button></li>')
+          $("#imgCam").show()
+          $("#vidCam").hide()
+          $("#holder").hide()
+          $("#del").html('<input style="display: none;" type="file" id="img" name="img" accept="image/*"><input style="display: none;" type="file" id="vid" name="vid" accept="video/*">')
+        }
+        else if (self.text() == "Video") {
+          $(".list-inline post-actions").html('<li style="display: inline;opacity: 0;" id="imgCam" ><a><i type="button" onclick="show("milk")" class="fi-xnsuxl-camera-solid"></i></a></li> <li style="display: inline;" class="pull-right"><button type="submit" style="left: 79%; position:relative;" class="btn btn-primary btn-xs">Post</button></li>')
+          $("#imgCam").hide()
+          $("#vidCam").show()
+          $("#holder").hide()
+          $("#del").html('<input style="display: none;" type="file" id="img" name="img" accept="image/*"><input style="display: none;" type="file" id="vid" name="vid" accept="video/*">')
+        } else {
+          if (self.text() == "Blog") {
+          $("#imgCam").hide()
+          $("#vidCam").hide()
+          $("#holder").show()
+          $("#del").html('<input style="display: none;" type="file" id="img" name="img" accept="image/*"><input style="display: none;" type="file" id="vid" name="vid" accept="video/*">')
+        }
+        }
+
+        currentAction.removeClass( 'active' );
+        self.addClass( 'active' );
+        currentAction = self;
+    });
+}); 
   
   function show(stuff){
     $(document).ready(function () {
       if (stuff=="milk"){
-        $("#image").show();
-        $("#video").hide();
+        $("#img").show()
+        $("#vid").hide()
       } else {
         $(document).ready(function () {
-        $("#video").show();
-        $("#image").hide();
+          $("#vid").show()
+          $("#img").hide()
       });
       }
       });
