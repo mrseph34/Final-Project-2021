@@ -37,7 +37,7 @@ def resetPassword(email,tempPass):
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-usfdgs
+
 class User(UserMixin):
     def __init__(self,email):
          self.email = email
