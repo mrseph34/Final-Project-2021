@@ -236,8 +236,9 @@ def friend(friend):
             if thing[0] == friend:
                 friends_already = True
 
+
     if friends_already == False:
-        cur.execute("INSERT INTO friendships(party1, party2) VALUES((?),(?))", (email,friend))
+        cur.execute("INSERT INTO friendships(party1, party2,accepted) VALUES((?),(?),(?))", (email,friend,"False"))
         con.commit()
         con.close()
     else:
@@ -247,6 +248,36 @@ def friend(friend):
 
 
     return redirect('/friends')
+
+@app.route('/delete/<friend>')
+def delete(friend):
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    email = current_user.get_id()
+    friends_already = False
+
+    cur.execute("DELETE FROM friendships WHERE (party1='"+email+"' AND party2='"+friend+"') OR (party2='"+email+"' AND party1='"+friend+"')")
+    con.commit()
+    con.close()
+
+
+    return redirect('/friends')
+
+@app.route('/accept/<friend>')
+def accept(friend):
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    email = current_user.get_id()
+    friends_already = False
+
+    cur.execute("UPDATE friendships SET accepted = 'True' WHERE (party1='"+email+"' AND party2='"+friend+"') OR (party2='"+email+"' AND party1='"+friend+"')")
+    con.commit()
+    con.close()
+
+
+    return redirect('/friends')
+
+
 
 @app.route('/friends')
 def friends():
@@ -259,16 +290,53 @@ def friends():
     con.commit()
     con.close()
     list = []
-    names = []
-
+    list_of_friends = []
+  
     for friends in friends_list:
-        friend = [getName(friends[0]),getName(friends[1])]
-        if friends[0] == email:
-            list.append(friend[1])
-        else:
-            list.append(friend[0])
+        if friends[2] == "False":
 
-    return render_template('friends.html', list = list, email = email)
+            friend = [friends[0],friends[1]]
+            if friends[1] == email:
+                con = sql.connect("./static/data/data.db")
+                cur = con.cursor()
+                pic_sql = 'SELECT profilePic FROM users WHERE email=?'
+                cur.execute(pic_sql, (friend[1],))
+                pic = cur.fetchall()
+                pic = pic[0][0]
+                message = [getName(friend[0]),pic,friend[0]]
+                con.commit()
+                con.close()
+                list.append(message)
+        else:
+            friend = [friends[0],friends[1]]
+            if friends[0] == email:
+                con = sql.connect("./static/data/data.db")
+                cur = con.cursor()
+                pic_sql = 'SELECT profilePic FROM users WHERE email=?'
+                cur.execute(pic_sql, (friend[1],))
+                pic = cur.fetchall()
+                pic = pic[0][0]
+                mes = [getName(friend[1]),pic,friend[1]]
+                con.commit()
+                con.close()
+                list_of_friends.append(mes)
+                
+            else:
+                con = sql.connect("./static/data/data.db")
+                cur = con.cursor()
+                pic_sql = 'SELECT profilePic FROM users WHERE email=?'
+                cur.execute(pic_sql, (friend[0],))
+                pic = cur.fetchall()
+                pic = pic[0][0]
+                mes = [getName(friend[0]),pic,friend[0]]
+                con.commit()
+                con.close()
+                list_of_friends.append(mes)
+
+            
+
+    return render_template('friends.html', list = list, email = email ,flist = list_of_friends)
+
 
 @app.route('/profile')
 @login_required
