@@ -1,6 +1,6 @@
-from re import M
+from re import M, split
 from flask import Flask, redirect, flash, render_template, json, jsonify, make_response, request, current_app as app
-from datetime import date, datetime
+from datetime import date, datetime, time
 import os
 import time
 import flask_login
@@ -17,6 +17,38 @@ PROFILE_FOLDER = 'static/profile/'
 POSTS_FOLDER = 'static/posts/'
 
 today = date.today()
+timeNow = time.strftime("%H:%M:%S")
+date = datetime.datetime.now()
+
+def getTime(y):
+    when = ""
+    x = str(y).split(" ")
+    stoday = str(today)
+    year = x[0].split("-")[0]
+    month = x[0].split("-")[1]
+    day = x[0].split("-")[2]
+    if x[0] == stoday:
+        hour = x[1].split(":")[0]
+        minu = x[1].split(":")[1]
+        seco = x[1].split(":")[2].split(".")[0]
+        if timeNow.split(":")[0] == hour:
+            if timeNow.split(":")[1] == minu:
+                when = str(int(timeNow.split(":")[2])-int(seco))+" second(s) ago"
+            else:
+                when = str(int(timeNow.split(":")[1])-int(minu))+" minute(s) ago"
+        else:
+            when = str(int(timeNow.split(":")[0])-int(hour))+" hours ago"
+    elif stoday.split("-")[0] == year:
+        if stoday.split("-")[1] == month:
+            when = str(int(stoday.split("-")[2])-int(day))+" day(s) ago"
+        elif int(stoday.split("-")[1])-int(month) == 1 and int(stoday.split("-")[2]) < 24:
+            when = str(int(stoday.split("-")[2]))+" day(s) ago"
+        else:
+            when = str(int(stoday.split("-")[1])-int(month))+" month(s) ago"
+    else:
+        when = str(int(stoday.split("-")[0])-int(year))+" year(s) ago"
+    
+    return when
 
 app = Flask(__name__, static_folder="static")
 
@@ -72,6 +104,7 @@ cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower" TEXT,"following"
 cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1" TEXT,"party2" TEXT,"accepted" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" INTEGER, "email" TEXT, "profilePic" TEXT, "day" TEXT, "banner" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date", "email", "profilePic")')
+cur.execute('CREATE TABLE IF NOT EXISTS "message_group" ("email1", "email2", "name1", "name2", "", "date")')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
 
 con.commit()
@@ -103,7 +136,7 @@ def reloadDB():
     rows = cur.fetchall()
     tempPosts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2])]
         tempPosts.append(post)
     cur.close()
     postsDB = tempPosts  # The mock database
@@ -120,7 +153,7 @@ def reloadDB():
     rows = cur.fetchall()
     tempComments = []
     for row in rows:
-        comment = [row[0],row[1],row[2],row[3],row[4],row[5]]
+        comment = [row[0],row[1],row[2],getTime(row[3]),row[4],row[5]]
         tempComments.append(comment)
     cur.close()
     commentsDB = tempComments  # The mock database
@@ -305,7 +338,10 @@ def profile2(email):
     pic_sql = 'SELECT profilePic FROM users WHERE email=?'
     cur.execute(pic_sql, (email,))
     pic = cur.fetchall()
-    pic = pic[0][0]
+    if pic[0][0]:
+        pic = pic[0][0]
+    else:
+        pic = ""
 
     fname_sql = 'SELECT fname FROM users WHERE email=?'
     cur.execute(fname_sql, (email,))
@@ -498,7 +534,7 @@ def home():
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2])]
         posts.append(post)
     cur.close()
 
@@ -574,7 +610,7 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, "[]", email, profPic, day))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, 0, email, profPic, day))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
