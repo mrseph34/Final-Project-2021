@@ -278,33 +278,29 @@
 <div class="row clearfix">
     <div class="col-lg-12">
         <div class="card chat-app">
-            <div id="plist" class="people-list" style="overflow: scroll; height: 662px;">
+            <div id="plist" class="people-list" style="overflow: scroll; height: 650px;">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-search"></i></span>
                     </div>
                     <input type="text" class="form-control" placeholder="Search...">
                 </div>
-                {% set peoples = [""] %}
-                {% for mans in messages %}
-                {% for people in peoples %}
-                {% if mans != people %}
-                    <s style="display: none;">{{ peoples.append(mans) }}</s>
+                {% for mans in messageGroup %}
+
                     {% set i = loop.index-1 %}
+                    <a href="/message/{{ messageGroup[i-1][3] }}">
                 <ul class="list-unstyled chat-list mt-2 mb-0">
                     <li class="clearfix">
                         <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
                         <div class="about">
-                            <div class="name">{{ messages[i][3] }}</div>
+                            <div class="name">{{ messageGroup[i-1][2] }}</div>
                             <!-- <div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div> 
                             <div class="status"> <i class="fa fa-circle online"></i> online </div>                                            -->
                         </div>
                     </li>
                                
                 </ul>
-
-                {%endif%}
-                {%endfor%}
+                </a>
                 {%endfor%}
                 
             </div>
@@ -328,65 +324,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="chat-history" style = "overflow: scroll; height: 500px;">
+                <div id="data" class="chat-history" style = "overflow: scroll; height: 500px;">
                     <ul class="m-b-0">
+                    {% for msg in messages %}
+                    {%if msg[0] == 2 %}
                         <li class="clearfix">
                             <div class="message-data text-right">
-                                <span class="message-data-time">10:10 AM, Today</span>
-                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar">
+                                <span class="message-data-time">{{msg[2]}}</span>
+                                <!-- <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar"> -->
                             </div>
-                            <div class="message other-message float-right"> Hi Aiden, how are you? How is the project coming along? </div>
+                            <div class="message other-message float-right"> {{msg[1]}} </div>
                         </li>
+                        {%else%}
                         <li class="clearfix">
                             <div class="message-data">
-                                <span class="message-data-time">10:12 AM, Today</span>
+                                <span class="message-data-time">{{msg[2]}}</span>
                             </div>
-                            <div class="message my-message">Are we meeting today?</div>                                    
+                            <div class="message my-message"> {{msg[1]}} </div>                                    
                         </li>                               
-                        <li class="clearfix">
-                            <div class="message-data">
-                                <span class="message-data-time">10:15 AM, Today</span>
-                            </div>
-                            <div class="message my-message">Project has been already finished and I have results to show you.</div>
-                        </li>
-                        <li class="clearfix">
-                            <div class="message-data">
-                                <span class="message-data-time">10:15 AM, Today</span>
-                            </div>
-                            <div class="message my-message">Project has been already finished and I have results to show you.</div>
-                        </li>
-                        <li class="clearfix">
-                            <div class="message-data">
-                                <span class="message-data-time">10:15 AM, Today</span>
-                            </div>
-                            <div class="message my-message">Project has been already finished and I have results to show you.</div>
-                        </li>
-                        <li class="clearfix">
-                            <div class="message-data">
-                                <span class="message-data-time">10:15 AM, Today</span>
-                            </div>
-                            <div class="message my-message">Project has been already finished and I have results to show you.</div>
-                        </li>
-                        <li class="clearfix">
-                            <div class="message-data">
-                                <span class="message-data-time">10:15 AM, Today</span>
-                            </div>
-                            <div class="message my-message">Project has been already finished and I have results to show you.</div>
-                        </li>
-                        <li class="clearfix">
-                            <div class="message-data">
-                                <span class="message-data-time">10:15 AM, Today</span>
-                            </div>
-                            <div class="message my-message">Project has been already finished and I have results to show you.</div>
-                        </li>
+                    {%endif%}
+                    {%endfor%}
                     </ul>
                 </div>
                 <div class="chat-message clearfix">
                     <div class="input-group mb-0">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-send"></i></span>
+                            <span id="get" onclick="msg({{ol}})" class="input-group-text"><a href="/message/{{ol}}"><i class="fa fa-send"></i></a></span>
                         </div>
-                        <input type="text" class="form-control" placeholder="Enter text here...">                                    
+                        <input id="msg" type="text" class="form-control" placeholder="SEND">                                    
                     </div>
                 </div>
             </div>
@@ -397,8 +362,26 @@
 </body>
 
 <script>
-    function comment(comment) {
-    $.ajax({url: "/comment/{{reciever}}"+comment+"/"+id, success: function(result){
-    }});}
+    function msg(id) {
+       msge = document.getElementById("msg").value
+
+    if (msge != "") {
+    $.ajax({url: "/sendMessage/"+id+"/"+msge, success: function(result){
+    }});}}
+
+    var elem = document.getElementById('data');
+    elem.scrollTop = elem.scrollHeight;
+
+    var input = document.getElementById("msg");
+    input.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    document.getElementById("get").click();
+    document.location.reload()
+  }
+});
 </script>
 </html>

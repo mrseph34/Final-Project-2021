@@ -18,9 +18,88 @@ POSTS_FOLDER = 'static/posts/'
 
 today = date.today()
 timeNow = time.strftime("%H:%M:%S")
-date = datetime.datetime.now()
+# date = datetime.datetime.now()
+
+
+def getName(email):
+
+    if email == None:
+        email = current_user.get_id()
+
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
+        fname = cur.fetchall()[0][0]
+        con.commit()
+        cur.close()
+
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
+        lname = cur.fetchall()[0][0]
+
+
+        full_name = fname + " " + lname
+        con.commit()
+        cur.close()
+    else:
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
+        fname = cur.fetchall()[0][0]
+        con.commit()
+        cur.close()
+
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
+        lname = cur.fetchall()[0][0]
+
+
+        full_name = fname + " " + lname
+        con.commit()
+        cur.close()
+
+    return full_name
+
+def getID(email):
+
+    if email == None:
+        email = current_user.get_id()
+
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT userID FROM users WHERE email='"+email+"'")
+        usID = cur.fetchall()[0][0]
+        con.commit()
+        cur.close()
+
+    else:
+        con = sql.connect("./static/data/data.db")
+        cur = con.cursor()
+        cur.execute("SELECT userID FROM users WHERE email='"+email+"'")
+
+        usID = cur.fetchall()[0][0]
+        con.commit()
+        cur.close()
+
+    return usID
+
+def getEmail(ide):
+    
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    cur.execute("SELECT email FROM users WHERE userID="+ide+"")
+    email = cur.fetchall()[0][0]
+    con.commit()
+    cur.close()
+
+    return email
+
 
 def getTime(y):
+    today = date.today()
+    timeNow = time.strftime("%H:%M:%S")
     when = ""
     x = str(y).split(" ")
     stoday = str(today)
@@ -31,13 +110,16 @@ def getTime(y):
         hour = x[1].split(":")[0]
         minu = x[1].split(":")[1]
         seco = x[1].split(":")[2].split(".")[0]
-        if timeNow.split(":")[0] == hour:
+        totime = ((int(timeNow.split(":")[0])*3600)+(int(timeNow.split(":")[1])*60)+int(timeNow.split(":")[2]))-((int(hour)*3600)+(int(minu)*60)+int(seco))
+        if timeNow.split(":")[0] == hour or (int(timeNow.split(":")[0]) - int(hour)) == 1:
             if timeNow.split(":")[1] == minu:
-                when = str(int(timeNow.split(":")[2])-int(seco))+" second(s) ago"
+                when = str(round(totime))+" second(s) ago"
+            elif int(timeNow.split(":")[1])-int(minu) == 1 and int(timeNow.split(":")[2]) < 50:
+                when = str(round(totime))+" second(s) ago"
             else:
-                when = str(int(timeNow.split(":")[1])-int(minu))+" minute(s) ago"
+                when = str(round(totime/60))+" minute(s) ago"
         else:
-            when = str(int(timeNow.split(":")[0])-int(hour))+" hours ago"
+            when = str(round(totime/3600))+" hours ago"
     elif stoday.split("-")[0] == year:
         if stoday.split("-")[1] == month:
             when = str(int(stoday.split("-")[2])-int(day))+" day(s) ago"
@@ -64,7 +146,7 @@ mail = Mail(app)
 
 def resetPassword(email,tempPass):
     msg = Message('Hello', sender = 'hootsservice@gmail.com', recipients = [email])
-    msg.body = "Hello fellow Hooter, your password has been set to the following temporary password please login and change as you please. __"+tempPass+"__"
+    msg.body = "Hello Hoots user, your password has been set to the following temporary password please login and change as you please. __"+tempPass+"__"
     mail.send(msg)
 
 login_manager = LoginManager(app)
@@ -99,13 +181,13 @@ def load_user(user_id):
 con = sql.connect("./static/data/data.db")
 cur = con.cursor()
 
-cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "username" TEXT, "security question" TEXT, "security answer" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "username" TEXT, "security question" TEXT, "security answer" TEXT, "userID" INTEGER PRIMARY KEY)')
 cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower" TEXT,"following" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1" TEXT,"party2" TEXT,"accepted" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" INTEGER, "email" TEXT, "profilePic" TEXT, "day" TEXT, "banner" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date", "email", "profilePic")')
-cur.execute('CREATE TABLE IF NOT EXISTS "message_group" ("email1", "email2", "name1", "name2", "", "date")')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "name1", "name2", "message", "date")')
+cur.execute('CREATE TABLE IF NOT EXISTS "message_group" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "date")')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("groupID" , "email1", "email2", "message", "date")')
 
 con.commit()
 cur.close()
@@ -126,6 +208,7 @@ tempComments = []
 commentsDB = ""
 comments = 0
 def reloadDB():
+
     global tempPosts
     global postsDB
     global posts
@@ -135,8 +218,8 @@ def reloadDB():
     cur.execute("SELECT * from all_posts")
     rows = cur.fetchall()
     tempPosts = []
-    for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2])]
+    for row in reversed(rows):
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2]),getID(row[8])]
         tempPosts.append(post)
     cur.close()
     postsDB = tempPosts  # The mock database
@@ -238,7 +321,7 @@ def friend(friend):
 
 
     if friends_already == False:
-        cur.execute("INSERT INTO friendships(party1, party2,accepted) VALUES((?),(?),(?))", (email,friend,"False"))
+        cur.execute("INSERT INTO friendships(party1, party2, accepted) VALUES((?),(?),(?))", (email,friend,"False"))
         con.commit()
         con.close()
     else:
@@ -337,6 +420,38 @@ def friends():
 
     return render_template('friends.html', list = list, email = email ,flist = list_of_friends)
 
+@app.route('/messages/<friend>')
+@login_required
+def addmessage(friend):
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    email = current_user.get_id()
+    group_already = False
+
+    cur.execute('SELECT * FROM message_group WHERE (email1="'+email+'") OR (email2="'+email+'")')
+    friends = cur.fetchall()
+    for thing in friends:
+        if thing[1] == email:
+            if thing[2] == friend:
+                group_already = True
+
+        if thing[2] == email:
+            if thing[1] == friend:
+                group_already = True
+
+
+    if group_already == False:
+        cur.execute("INSERT INTO message_group(email1, email2) VALUES((?),(?))", (email,friend))
+        con.commit()
+        con.close()
+    else:
+        # cur.execute("DELETE FROM message_group WHERE (email1='"+email+"' AND email2='"+friend+"') OR (email1='"+email+"' AND email2='"+friend+"')")
+        # con.commit()
+        # con.close()
+        ""
+    
+
+    return redirect("/messages", code=302)
 
 @app.route('/profile')
 @login_required
@@ -383,8 +498,10 @@ def profile2(email):
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    email2 = current_user.get_id()
+    cur.execute('SELECT email FROM users WHERE userID="'+email+'"')
+    email = cur.fetchall()[0][0]
 
+    email2 = current_user.get_id()
     #check if email exists
 
     follows = "Follow+"
@@ -447,49 +564,83 @@ def messages2():
 
     msg = ""
 
-    cur.execute("SELECT * FROM all_messages")
+    cur.execute('SELECT * FROM message_group WHERE (email1="'+email+'") OR (email2="'+email+'")')
     bob = cur.fetchall()
 
-    messages = []
+    messageGroup = []
     for row in bob:
-        message = [row[1],row[2],row[3],row[4],row[5],row[6]]
-        messages.append(message)
-
+        if email != row[2]:
+         ppl = [row[1],row[2],getName(row[2]),getID(row[2]),row[3]]
+        else:
+         ppl = [row[1],row[2],getName(row[1]),getID(row[1]),row[3]]
+        messageGroup.append(ppl)
+        
     cur.close()
     con.close()
 
-    return render_template('messages.html', messages = messages)
+    return render_template('messages.html', messageGroup = messageGroup)
 
-
-
-
-@app.route('/messages/<reciever>')
-def messages(reciever):
+@app.route('/sendMessage/<reciever>/<msg>')
+def messageSEND(reciever,msg):
 
     email = current_user.get_id()
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    msg = ""
+    sqle = 'SELECT email FROM users WHERE userID=?'
+    cur.execute(sqle, (reciever,))
+    sname = cur.fetchall()
+    reciever = sname[0][0]
 
-    fname_sql = 'SELECT fname FROM users WHERE email=?'
-    cur.execute(fname_sql, (reciever,))
-    fname = cur.fetchall()
-    fname = fname[0][0]
+    sqle2 = 'SELECT rowID FROM message_group WHERE (email1=? AND email2=?) OR (email2=? AND email1=?)'
+    cur.execute(sqle2, (reciever,email,reciever,email))
+    sname2 = cur.fetchall()
+    groupID = sname2[0][0]
 
-    lname_sql = 'SELECT lname FROM users WHERE email=?'
-    cur.execute(lname_sql, (reciever,))
-    lname = cur.fetchall()
-    lname = lname[0][0]
-
-    reciever_name = fname + " " + lname
-
-    cur.execute("INSERT INTO all_messages(email1, email2, name1, name2, message, date) VALUES((?),(?),(?),(?),(?),(?))", (email,reciever,getName(None),reciever_name,msg,datetime.datetime.now()))
+    cur.execute("INSERT INTO all_messages(groupID ,email1, email2, message, date) VALUES((?),(?),(?),(?),(?))", (groupID,email,reciever,msg,datetime.datetime.now()))
     con.commit()
+    con.close()
 
     #cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever,msg,datetime.datetime.now()))
 
-    return render_template('messages.html', reciever = reciever, name = reciever_name, messages = "bob")
+    return ""
+
+@app.route('/message/<reciever>')
+def messages(reciever):
+
+    email = current_user.get_id()
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    friend = getEmail(reciever)
+    cur.execute('SELECT * FROM message_group WHERE (email1="'+email+'") OR (email2="'+email+'")')
+    bob = cur.fetchall()
+
+    messageGroup = []
+    for row in bob:
+        if email != row[2]:
+         ppl = [row[1],row[2],getName(row[2]),getID(row[2]),row[3]]
+        else:
+         ppl = [row[1],row[2],getName(row[1]),getID(row[1]),row[3]]
+        messageGroup.append(ppl)
+
+    cur.execute('SELECT * FROM all_messages WHERE (email1="'+email+'" AND email2="'+getEmail(reciever)+'") OR (email2="'+email+'" AND email1="'+getEmail(reciever)+'")')
+    bob = cur.fetchall()
+
+    messages = []
+    for row in bob:
+        if email==row[2]:
+         msg = [1,row[3],getTime(row[4])]
+        else:
+         msg = [2,row[3],getTime(row[4])]
+        messages.append(msg)
+
+    ol = reciever
+    sqle = 'SELECT email FROM users WHERE userID=?'
+    cur.execute(sqle, (reciever,))
+    sname = cur.fetchall()
+    reciever = sname[0][0]
+
+    return render_template('messages.html', messageGroup=messageGroup, reciever = reciever, messages = messages, ol=ol)
 
 @app.route('/settings')
 @login_required
@@ -602,7 +753,7 @@ def home():
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2])]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2]),getID(row[8])]
         posts.append(post)
     cur.close()
 
@@ -636,7 +787,7 @@ def post():
 
 
     full_name = getName(None)
-    email = current_user.get_id()
+    email = getID(current_user.get_id())
 
     postName = ""
 
@@ -678,7 +829,7 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, 0, email, profPic, day))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, 0, current_user.get_id(), profPic, day))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
@@ -714,9 +865,9 @@ def profilePic():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("UPDATE users SET profilePic = '"+imgname+"' WHERE email='"+current_user.get_id()+"'")
-    cur.execute("UPDATE all_posts SET profilePic='"+imgname+"' Where email='"+current_user.get_id()+"'")
-    cur.execute("UPDATE all_comments SET profilePic='"+imgname+"' Where email='"+current_user.get_id()+"'")
+    cur.execute("UPDATE users SET profilePic = '"+imgname+"' WHERE email='"+email+"'")
+    cur.execute("UPDATE all_posts SET profilePic='"+imgname+"' WHERE email='"+email+"'")
+    cur.execute("UPDATE all_comments SET profilePic='"+imgname+"' WHERE email='"+email+"'")
 
     con.commit()
     cur.close()
@@ -995,56 +1146,15 @@ def change_name():
     cur = con.cursor()
     cur.execute("UPDATE users SET fname='"+fname+"' WHERE email='"+current_user.get_id()+"'")
     cur.execute("UPDATE users SET lname='"+lname+"' WHERE email='"+current_user.get_id()+"'")
-    cur.execute("UPDATE all_posts SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")
-    cur.execute("UPDATE all_comments SET name='"+fname+" "+lname+"' Where email='"+current_user.get_id()+"'")
-
+    cur.execute("UPDATE all_posts SET name='"+fname+" "+lname+"' WHERE email='"+current_user.get_id()+"'")
+    cur.execute("UPDATE all_comments SET name='"+fname+" "+lname+"' WHERE email='"+current_user.get_id()+"'")
+    print("")
     full_name = fname + " " + lname
     con.commit()
     cur.close()
     global change
     change = "NAME CHANGED SUCCESSFULLY!"
     return redirect("/settings", code = 302)
-
-def getName(email):
-
-    if email == None:
-        email = current_user.get_id()
-
-        con = sql.connect("./static/data/data.db")
-        cur = con.cursor()
-        cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
-        fname = cur.fetchall()[0][0]
-        con.commit()
-        cur.close()
-
-        con = sql.connect("./static/data/data.db")
-        cur = con.cursor()
-        cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
-        lname = cur.fetchall()[0][0]
-
-
-        full_name = fname + " " + lname
-        con.commit()
-        cur.close()
-    else:
-        con = sql.connect("./static/data/data.db")
-        cur = con.cursor()
-        cur.execute("SELECT fname FROM users WHERE email='"+email+"'")
-        fname = cur.fetchall()[0][0]
-        con.commit()
-        cur.close()
-
-        con = sql.connect("./static/data/data.db")
-        cur = con.cursor()
-        cur.execute("SELECT lname FROM users WHERE email='"+email+"'")
-        lname = cur.fetchall()[0][0]
-
-
-        full_name = fname + " " + lname
-        con.commit()
-        cur.close()
-
-    return full_name
 
 @app.route('/logout',methods = ['POST', 'GET'])
 @login_required

@@ -75,7 +75,7 @@ body {
                     <br><a style="float: right;" href="" class="button" onclick="follow('{{email}}')">{{follows}}&nbsp</a>&nbsp<a style="float: right;" href="" class="button" onclick="friend('{{email}}')">{{friendo}}&nbsp&nbsp&nbsp&nbsp</a><a>&nbsp&nbsp&nbsp&nbsp&nbsp</a>
                 </ul>
             </div>
-
+            <a style="float: right;" href="/messages" class="button" onclick="message('{{email}}')">MESSAGE</a>
                 <div class="py-4">
                     <h5 class="mb-3">Recent Post:</h5>
                     <div class="p-4 bg-light rounded shadow-sm">
@@ -97,6 +97,9 @@ body {
     }});}
     function friend(name) {
     $.ajax({url: "/friends/" + name, success: function(result){
+    }});}
+    function message(name) {
+    $.ajax({url: "/messages/" + name, success: function(result){
     }});}
 </script>
 </body>
