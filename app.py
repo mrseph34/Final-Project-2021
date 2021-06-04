@@ -264,7 +264,7 @@ def reloadDB():
 
 reloadDB()
 
-quantity = 3  # num posts to return per request
+quantity = 5  # num posts to return per request
 
 @app.before_request
 def before_request():
@@ -284,7 +284,6 @@ def load():
             print(f"Returning posts 0 to {quantity}")
             # Slice 0 -> quantity from the db
             res = make_response(jsonify(postsDB[0: quantity]), 200)
-            res2 = make_response(jsonify(commentsDB[0: quantity]), 200)
 
         elif counter == posts:
             print("No more posts")
@@ -308,6 +307,33 @@ def load2():
 
         # Slice counter -> quantity from the db
         res = make_response(jsonify(commentsDB[counter: len(commentsDB)]), 200)
+    
+    return res
+
+
+postsDB2 = []
+@app.route("/load3")
+def load3():
+    """ Route to return the posts """
+
+    time.sleep(0.2)  # Used to simulate delay
+
+    if request.args:
+        counter = int(request.args.get("c"))  # The 'counter' value sent in the QS
+
+        if counter == 0:
+            print(f"Returning posts 0 to {quantity}")
+            # Slice 0 -> quantity from the db
+            res = make_response(jsonify(postsDB2[0: quantity]), 200)
+
+        elif counter == posts:
+            print("No more posts")
+            res = make_response(jsonify({}), 200)
+
+        else:
+            print(f"Returning posts {counter} to {counter + quantity}")
+            # Slice counter -> quantity from the db
+            res = make_response(jsonify(postsDB2[counter: counter + quantity]), 200)
     
     return res
 
@@ -838,6 +864,78 @@ def home():
     cur.close()
 
     return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic)
+
+@app.route('/search' , methods=['GET', 'POST'])
+@login_required
+def search():
+
+    full_name = getName(None)
+
+    search = request.form.get('search')
+    print(search)
+   
+
+
+    profilePic = []
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute('SELECT * FROM users')
+
+    all = cur.fetchall()
+
+    users = []
+
+    for row in all:
+        users.append(row[4])
+
+    cur.close()
+    con.close()
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT profilePic,email from users")
+    pic = cur.fetchall()
+    for row in pic:
+        profilePic.append(row)
+
+    email = current_user.get_id()
+
+
+    cur.close()
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    
+    
+   
+    
+    cur.execute("SELECT * FROM all_posts WHERE name LIKE '" + "%" +search+ "%" + "'")
+    
+    rows = cur.fetchall()
+    
+    global postsDB2
+    postsDB2 = []
+    for row in reversed(rows):
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2]),getID(row[8]),row[11]]
+        postsDB2.append(post)
+    cur.close()
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * from all_comments")
+    rows = cur.fetchall()
+    comments = []
+    for row in rows:
+        comment = [row[0],row[1],row[2],row[3],row[4],row[5]]
+        comments.append(comment)
+    cur.close()
+   
+    return render_template('search.html', users=users, posts = postsDB, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic)
 
 @app.route('/home/post')
 @login_required
