@@ -12,6 +12,15 @@ from werkzeug.utils import secure_filename
 import datetime
 from flask_mail import Mail, Message
 import string, random
+import pusher
+
+pusher_client = pusher.Pusher(
+  app_id='1214298',
+  key='a5fb9bca92914681546d',
+  secret='5afbf42c792c68cefdae',
+  cluster='us2',
+  ssl=True
+)
 
 PROFILE_FOLDER = 'static/profile/'
 POSTS_FOLDER = 'static/posts/'
@@ -96,6 +105,16 @@ def getEmail(ide):
 
     return email
 
+def getProf(email):
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    cur.execute("SELECT profilePic FROM users WHERE email='"+email+"'")
+    profPic = cur.fetchall()[0][0]
+    con.commit()
+    cur.close()
+
+    return profPic
+
 
 def getTime(y):
     today = date.today()
@@ -133,6 +152,7 @@ def getTime(y):
     return when
 
 app = Flask(__name__, static_folder="static")
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 mail= Mail(app)
 
@@ -184,10 +204,10 @@ cur = con.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "username" TEXT, "security question" TEXT, "security answer" TEXT, "userID" INTEGER PRIMARY KEY)')
 cur.execute('CREATE TABLE IF NOT EXISTS "followers" ("follower" TEXT,"following" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "friendships" ("party1" TEXT,"party2" TEXT,"accepted" TEXT)')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" INTEGER, "email" TEXT, "profilePic" TEXT, "day" TEXT, "banner" TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_posts" ("post" TEXT, "title" TEXT, "date" TEXT, "name" TEXT, "description" TEXT, "likes" TEXT, "likesAmount" INTEGER, "comments" INTEGER, "email" TEXT, "profilePic" TEXT, "day" TEXT, "type" TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS "all_comments" ("id", "name", "comment", "date", "email", "profilePic")')
 cur.execute('CREATE TABLE IF NOT EXISTS "message_group" ("rowID" INTEGER PRIMARY KEY, "email1", "email2", "date")')
-cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("groupID" , "email1", "email2", "message", "date")')
+cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("groupID" , "email1", "email2", "message", "date", type)')
 
 con.commit()
 cur.close()
@@ -195,7 +215,7 @@ cur.close()
 app.secret_key = "secret key"
 app.config['PROFILE_FOLDER'] = PROFILE_FOLDER
 app.config['POSTS_FOLDER'] = POSTS_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1080 * 1080
 
 full_name = ""
 change = ""
@@ -219,7 +239,7 @@ def reloadDB():
     rows = cur.fetchall()
     tempPosts = []
     for row in reversed(rows):
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2]),getID(row[8])]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2]),getID(row[8]),row[11]]
         tempPosts.append(post)
     cur.close()
     postsDB = tempPosts  # The mock database
@@ -570,9 +590,9 @@ def messages2():
     messageGroup = []
     for row in bob:
         if email != row[2]:
-         ppl = [row[1],row[2],getName(row[2]),getID(row[2]),row[3]]
+         ppl = [row[1],row[2],getName(row[2]),getID(row[2]),row[3],getProf(row[2])]
         else:
-         ppl = [row[1],row[2],getName(row[1]),getID(row[1]),row[3]]
+         ppl = [row[1],row[2],getName(row[1]),getID(row[1]),row[3],getProf(row[1])]
         messageGroup.append(ppl)
         
     cur.close()
@@ -580,34 +600,72 @@ def messages2():
 
     return render_template('messages.html', messageGroup = messageGroup)
 
-@app.route('/sendMessage/<reciever>/<msg>')
+@app.route('/sendMessage/<reciever>/<msg>', methods=["POST","GET"])
 def messageSEND(reciever,msg):
 
     email = current_user.get_id()
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
+    ol = reciever
+
     sqle = 'SELECT email FROM users WHERE userID=?'
     cur.execute(sqle, (reciever,))
     sname = cur.fetchall()
     reciever = sname[0][0]
+    msg2=""
 
     sqle2 = 'SELECT rowID FROM message_group WHERE (email1=? AND email2=?) OR (email2=? AND email1=?)'
     cur.execute(sqle2, (reciever,email,reciever,email))
     sname2 = cur.fetchall()
     groupID = sname2[0][0]
+    day = today.strftime("%B %d, %Y")
+    date = str(datetime.datetime.now())
+    toim = ""
+    type = ""
+    img = request.files['img']
+    print(img)
+    imgname = img.filename
+    if img.filename != "":
+        imgname = imgname.replace(" ","_")
+        filename = secure_filename(imgname)
+        img.save(os.path.join(app.config['POSTS_FOLDER'], filename))
+        msg2 = imgname
+        type="img"
 
-    cur.execute("INSERT INTO all_messages(groupID ,email1, email2, message, date) VALUES((?),(?),(?),(?),(?))", (groupID,email,reciever,msg,datetime.datetime.now()))
+        flash('Image successfully uploaded and displayed below')
+
+    vid = request.files['vid']
+    print(vid)
+    if vid.filename != "":
+        vidname = vid.filename
+        vidname = vidname.replace(" ","_")
+        filename = secure_filename(vidname)
+        vid.save(os.path.join(app.config['POSTS_FOLDER'], filename))
+        msg2 = vidname
+        type="vid"
+
+        flash('Image successfully uploaded and displayed below')
+
+    if int(date.split(" ")[1].split(":")[0]) > 12:
+        toim = str(int(date.split(" ")[1].split(":")[0])-12)+":"+str(date.split(" ")[1].split(":")[1])+"pm"
+    else:
+        toim = str(int(date.split(" ")[1].split(":")[0]))+":"+str(date.split(" ")[1].split(":")[1])+"am"
+
+    if type!="":
+        cur.execute("INSERT INTO all_messages(groupID ,email1, email2, message, date, type) VALUES((?),(?),(?),(?),(?),(?))", (groupID,email,reciever,msg2,day+" at "+toim,type))
+    if msg!="SECRETCODEkjadnfjasdnfnsadfnaksdkflnsdamfklasdmfklsdamfaksdmfnlsadfa":
+        cur.execute("INSERT INTO all_messages(groupID ,email1, email2, message, date, type) VALUES((?),(?),(?),(?),(?),(?))", (groupID,email,reciever,msg,day+" at "+toim,""))
     con.commit()
     con.close()
 
-    #cur.execute("INSERT INTO all_messages(email1, email2, message, date) VALUES((?),(?),(?),(?))", (email,reciever,msg,datetime.datetime.now()))
+    pusher_client.trigger('msg-channel', 'new-message', {'userID': ol, 'message': msg, 'time': 'Today at '+toim})
 
     return ""
 
 @app.route('/message/<reciever>')
 def messages(reciever):
-
+    
     email = current_user.get_id()
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
@@ -618,9 +676,9 @@ def messages(reciever):
     messageGroup = []
     for row in bob:
         if email != row[2]:
-         ppl = [row[1],row[2],getName(row[2]),getID(row[2]),row[3]]
+         ppl = [row[1],row[2],getName(row[2]),getID(row[2]),row[3],getProf(row[2])]
         else:
-         ppl = [row[1],row[2],getName(row[1]),getID(row[1]),row[3]]
+         ppl = [row[1],row[2],getName(row[1]),getID(row[1]),row[3],getProf(row[1])]
         messageGroup.append(ppl)
 
     cur.execute('SELECT * FROM all_messages WHERE (email1="'+email+'" AND email2="'+getEmail(reciever)+'") OR (email2="'+email+'" AND email1="'+getEmail(reciever)+'")')
@@ -629,18 +687,29 @@ def messages(reciever):
     messages = []
     for row in bob:
         if email==row[2]:
-         msg = [1,row[3],getTime(row[4])]
+         today = date.today().strftime("%B %d %Y")
+         if row[4].split(" ")[0]+" "+row[4].split(" ")[1].split(",")[0]+" "+row[4].split(" ")[2] == today:
+             newrow = "Today at "+row[4].split(" ")[4]
+         else:
+             newrow = row[4]
+         msg = [1,row[3],newrow,row[5]]
         else:
-         msg = [2,row[3],getTime(row[4])]
+         today = date.today().strftime("%B %d %Y")
+         if row[4].split(" ")[0]+" "+row[4].split(" ")[1].split(",")[0]+" "+row[4].split(" ")[2] == today:
+             newrow = "Today at "+row[4].split(" ")[4]
+         else:
+             newrow = row[4]
+         msg = [2,row[3],newrow,row[5]]
         messages.append(msg)
-
+    ml = getID(email)
     ol = reciever
+    gic = getProf(getEmail(ol))
     sqle = 'SELECT email FROM users WHERE userID=?'
     cur.execute(sqle, (reciever,))
     sname = cur.fetchall()
     reciever = sname[0][0]
 
-    return render_template('messages.html', messageGroup=messageGroup, reciever = reciever, messages = messages, ol=ol)
+    return render_template('messages.html', messageGroup=messageGroup, reciever = reciever, messages = messages, ol=ol, theName = getName(reciever), gic=gic, ml=ml)
 
 @app.route('/settings')
 @login_required
@@ -791,6 +860,7 @@ def post():
 
     postName = ""
 
+    type = "img"
 
     img = request.files['img']
     imgname = img.filename
@@ -809,6 +879,7 @@ def post():
         filename = secure_filename(vidname)
         vid.save(os.path.join(app.config['POSTS_FOLDER'], filename))
         postName = vidname
+        type="vid"
 
         flash('Image successfully uploaded and displayed below')
 
@@ -829,14 +900,14 @@ def post():
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
-    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, 0, current_user.get_id(), profPic, day))
+    cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email, profilePic, day, type) VALUES((?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?),(?))", (postName, title, date, full_name, description, "[]", 0, 0, current_user.get_id(), profPic, day,type))
     #cur.execute("INSERT INTO " + email.upper() + "(post, name) VALUES((?),(?))", (post, full_name))
     #cur.execute("INSERT INTO all_posts(post, title, date, name, description, likes, likesAmount, comments, email) VALUES((?),(?))", (post, full_name))
     cur.execute("SELECT * from all_posts")
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]]
         posts.append(post)
 
     con.commit()
@@ -979,7 +1050,7 @@ def like(id):
     rows = cur.fetchall()
     posts = []
     for row in rows:
-        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]]
+        post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]]
         posts.append(post)
     cur.close()
     for post in posts:
@@ -1166,4 +1237,4 @@ def logout():
 
 
 if __name__ == '__main__':
- app.run(debug=True, host='0.0.0.0')
+ app.run(threaded=True, debug=True, host='0.0.0.0')

@@ -594,7 +594,14 @@ function loadItems() {
         
         if (data[i][0] != "") { 
           template_clone.querySelector("#description").style = `text-align: center;` 
+          if (data[i][12]=="img") {
           template_clone.querySelector("#img").innerHTML = `<center><img class="fakeimg" src="../static/posts/${data[i][0]}" style="height: 500px; width: 80%; background-color: white;"></center>`; }
+          } 
+          if (data[i][12]=="vid") {
+          template_clone.querySelector("#img").innerHTML = `<center><video width="430" height="250" controls>
+            <source src="/static/posts/${data[i][0]}" type="video/mp4">
+            <source src="/static/posts/${data[i][0]}" type="video/mov">
+          </video></center>`;}
         // template_clone.querySelector("#title").innerHTML = `${data[i][0]}: ${data[i][1]}`;
        // template_clone.querySelector("#content").innerHTML = data[i][2];
 
