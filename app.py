@@ -863,7 +863,54 @@ def home():
         comments.append(comment)
     cur.close()
 
-    return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic)
+    r = requests.get('https://api.ipdata.co?api-key=0903c7053ea33de70e6166b2130f31325a955ae24d44a9783b2586ca').json()
+    place = r['city']
+
+
+    key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp&q=" + place).json()
+    key = key_link[0]['Key']
+    complete_api_link = "https://dataservice.accuweather.com/forecasts/v1/daily/1day/" + key + "?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp"
+    print(complete_api_link)
+
+    api_link = requests.get(complete_api_link)
+    api_data = api_link.json()
+    minimum_value = api_data['DailyForecasts'][0]['Temperature']['Minimum']['Value']
+    maximum_value = api_data['DailyForecasts'][0]['Temperature']['Maximum']['Value']
+    daily_headline = api_data['Headline']['Text']
+    iconNum = api_data['DailyForecasts'][0]['Day']['Icon']
+    print(type(iconNum))
+    new_num = iconNum
+    if iconNum < 10:
+	    new_num = str(iconNum).zfill(2)
+    else:
+	    new_num = str(iconNum)
+
+    #504613a92ad54b5ab541958334451484
+
+    articles = requests.get('https://newsapi.org/v2/top-headlines?country=us&apiKey=504613a92ad54b5ab541958334451484').json()
+    title = articles['articles'][0]['title']
+    desc = articles['articles'][0]['description']
+    image = articles['articles'][0]['urlToImage']
+    url = articles['articles'][0]['url']
+
+
+    all_articles = []
+    all = articles['articles']
+    for i in range(0,3):
+      thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url']]
+      all_articles.append(thing)
+
+    quote_link = requests.get('https://zenquotes.io/api/random').json()
+    quote = quote_link[0]['q']
+    author = quote_link[0]['a']
+
+
+
+
+
+
+
+    return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, min = minimum_value, max = maximum_value, head = daily_headline, i_num = new_num, title = title, image = image, url = url, desc = desc, articles = all_articles, q = quote, a = author)
 
 @app.route('/search' , methods=['GET', 'POST'])
 @login_required

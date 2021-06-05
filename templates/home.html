@@ -431,7 +431,28 @@ display: block;
     </div>
   </div>
 </div> -->
+<h1>Minimum: {{min}}°F</h1>
+    <h1>Maximum: {{max}}°F</h1>
+    <h1>{{head}}</h1>
+    <img src="https://developer.accuweather.com/sites/default/files/{{i_num}}-s.png" height = "1000px" width="1000px" alt="">
 
+    
+    {%for article in articles%}
+    <div class="anime">
+        <h1>{{article[0]}}</h1>
+
+
+        <p>{{article[1]}}</p>
+        <a href="{{article[3]}}" target="_blank" rel="noreferrer noopener"><img src="{{article[2]}}" height = "200px" width="200px" alt=""></a>
+    </div>  
+
+    {%endfor%}
+
+    <h1>{{q}}</h1>
+    <p>-{{a}}</p>
+
+    
+    
 <div id="scroller" class="mb-3">
 
   <!-- template schema, hidden from the dom -->
