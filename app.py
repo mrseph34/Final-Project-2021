@@ -863,8 +863,10 @@ def home():
         comments.append(comment)
     cur.close()
 
-    r = requests.get('https://api.ipdata.co?api-key=0903c7053ea33de70e6166b2130f31325a955ae24d44a9783b2586ca').json()
+    r = requests.get('https://api.ipdata.co?api-key=efa9939867be7cb086c0afd1ddbb716005e0efcea4f4313d6d130842').json()
     place = r['city']
+
+    
 
 
     key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp&q=" + place).json()
@@ -1381,5 +1383,13 @@ def logout():
     return redirect("/", code=302)
 
 
+
+
 if __name__ == '__main__':
  app.run(threaded=True, debug=True, host='0.0.0.0')
+
+
+
+ #this is just some random code for no reason
+
+
