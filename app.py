@@ -894,12 +894,13 @@ def home():
     desc = articles['articles'][0]['description']
     image = articles['articles'][0]['urlToImage']
     url = articles['articles'][0]['url']
+    
 
 
     all_articles = []
     all = articles['articles']
     for i in range(0,3):
-      thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url']]
+      thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url'],all[i]['source']['name']]
       all_articles.append(thing)
 
     quote_link = requests.get('https://zenquotes.io/api/random').json()
