@@ -863,8 +863,10 @@ def home():
         comments.append(comment)
     cur.close()
 
-    r = requests.get('https://api.ipdata.co?api-key=0903c7053ea33de70e6166b2130f31325a955ae24d44a9783b2586ca').json()
+    r = requests.get('https://api.ipdata.co?api-key=efa9939867be7cb086c0afd1ddbb716005e0efcea4f4313d6d130842').json()
     place = r['city']
+
+    
 
 
     key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=uUD2ayq1cbOmn5ZLZD8FnqYBzxjV6iWz=" + place).json()
@@ -892,12 +894,13 @@ def home():
     desc = articles['articles'][0]['description']
     image = articles['articles'][0]['urlToImage']
     url = articles['articles'][0]['url']
+    
 
 
     all_articles = []
     all = articles['articles']
     for i in range(0,3):
-      thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url']]
+      thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url'],all[i]['source']['name']]
       all_articles.append(thing)
 
     quote_link = requests.get('https://zenquotes.io/api/random').json()
@@ -1381,5 +1384,13 @@ def logout():
     return redirect("/", code=302)
 
 
+
+
 if __name__ == '__main__':
  app.run(threaded=True, debug=True, host='0.0.0.0')
+
+
+
+ #this is just some random code for no reason
+
+
