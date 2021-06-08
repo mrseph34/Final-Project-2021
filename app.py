@@ -869,7 +869,7 @@ def home():
     
 
 
-    key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=uUD2ayq1cbOmn5ZLZD8FnqYBzxjV6iWz=" + place).json()
+    key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp&q=" + place).json()
     key = key_link[0]['Key']
     complete_api_link = "https://dataservice.accuweather.com/forecasts/v1/daily/1day/" + key + "?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp"
     print(complete_api_link)
