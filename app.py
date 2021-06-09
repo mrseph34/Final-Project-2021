@@ -916,6 +916,7 @@ def home():
     quote_link = requests.get('https://zenquotes.io/api/random').json()
     quote = quote_link[0]['q']
     author = quote_link[0]['a']
+    h = quote_link[0]['h']
 
 
 
@@ -923,7 +924,7 @@ def home():
 
 
 
-    return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, min = minimum_value, max = maximum_value, head = daily_headline, i_num = new_num, title = title, image = image, url = url, desc = desc, articles = all_articles, q = quote, a = author)
+    return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, min = minimum_value, max = maximum_value, head = daily_headline, i_num = new_num, title = title, image = image, url = url, desc = desc, articles = all_articles, q = quote, a = author, h = h)
 
 @app.route('/search' , methods=['GET', 'POST'])
 @login_required
