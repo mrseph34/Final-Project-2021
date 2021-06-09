@@ -201,18 +201,34 @@
 				
 				<body>  
 
-					<ul style="position:fixed; top: -7%; right:22%;" class="menu-bar">
-            <div style="float: left; color: whitesmoke;">
-            <label for="search">Search:</label>
-            <input type="search" id="search" name="search">
+					<ul style="position:fixed; top: -7%; right:20%;" class="menu-bar">
+            
+                      
+                          
+   
+            <form action="/search" method = "post">
+
+              <input type="text" placeholder="Search" name = "search" required = "required" />
+              <button>Search</button>
+            </form>
+                 
+						<li><a href="/home" style = "text-decoration: none; color: white;">Home</a></li>
+						<li><a href="/friends" style = "text-decoration: none; color: white;">Friends</a></li>
+						<li>Stories</li>
+						<li><a href="/messages" style = "text-decoration: none; color: white;">Messages</a></li>
+						<li>Games</li>
+            <li><a href="/settings" style = "text-decoration: none; color: white;">Settings</a></li>
+            <li><a href="/profile" style = "text-decoration: none; color: white;">Profile</a></li>
+            <div class="dropdown">
+              <li><a href="/home/post" style="text-decoration: none; border-radius: 360px;" class="dropbtn">+</a></li>
+              <div style="border-radius: 12px;" class="dropdown-content">
+                <!--<a href="/home/blog">Blog</a>
+                <a href="/home/img">Picture</a>
+                <a href="/home/vid">Video</a>-->
+              </div>
             </div>
-<li>Home</li>
-<li>Friends</li>
-<li>Stories</li>
-<li>Messages</li>
-<li>Games</li>
-            <a href="/logout">LOGOUT</a>
-</ul>
+            <li><a href="/logout" style = "text-decoration: none; color: white;">LOGOUT</a></li>
+					</ul>
 <br><br><br><br><br>
 <!-- <center>
 <form style="border-radius: 8px; background-color: #aaa; width: 50%; text-align: center;" action="/post" method="POST" enctype="multipart/form-data">

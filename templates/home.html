@@ -273,10 +273,10 @@ display: block;
               <button>Search</button>
             </form>
                  
-						<li>Home</li>
+						<li><a href="/home" style = "text-decoration: none; color: white;">Home</a></li>
 						<li><a href="/friends" style = "text-decoration: none; color: white;">Friends</a></li>
 						<li>Stories</li>
-						<li>Messages</li>
+						<li><a href="/messages" style = "text-decoration: none; color: white;">Messages</a></li>
 						<li>Games</li>
             <li><a href="/settings" style = "text-decoration: none; color: white;">Settings</a></li>
             <li><a href="/profile" style = "text-decoration: none; color: white;">Profile</a></li>
@@ -288,7 +288,7 @@ display: block;
                 <a href="/home/vid">Video</a>-->
               </div>
             </div>
-                        <a href="/logout">LOGOUT</a>
+            <li><a href="/logout" style = "text-decoration: none; color: white;">LOGOUT</a></li>
 					</ul>
     <br><br>
              <!--      <form style="background-color: #aaa; width: 50%; text-align: left;" action="/home" method="POST" enctype="multipart/form-data">
@@ -431,19 +431,20 @@ display: block;
     </div>
   </div>
 </div> -->
-<div style="text-align: left; position: absolute; height:60%; width:20%; right:0; overflow: scroll; background-color: lightgray; opacity: .5; border-radius: 8px;">
-    <strong >TOP NEWS IN YOUR AREA'r</strong><br><br>
+<div style="text-align: left; position: absolute; height:60%; width:19%; right:0; overflow: scroll; background-color: lightgray; opacity: .5; border-radius: 8px;">
+    <strong >TOP NEWS IN YOUR AREA</strong><br><br>
     
     {%for article in articles%}
     <div class="anime">
-        <p style="font-size: 80%;">{{article[0]}}</p>
+      <a href="{{article[3]}}" style="text-decoration: none; color: black;" target="_blank" rel="noreferrer noopener"><p style="font-size: 80%;">{{article[0]}}</p></a>
+        
 
 
-        <a href="{{article[3]}}" target="_blank" rel="noreferrer noopener"><img src="{{article[2]}}" height = "40%" width="40%" alt=""></a>
+        <a href="{{article[3]}}" target="_blank" rel="noreferrer noopener"><img src="{{article[2]}}" height = "40%" width="80%" alt=""></a>
     </div>  
 
     <!-- <p style="font-size: 60%;">{{article[1]}} <p>{{article[4]}}</p></p> -->
-<hr>
+<hr style="border: 10px black; border-radius: 5px;">
     {%endfor%}
 
   </div>

@@ -388,9 +388,84 @@ body .fc-widget-header a {
 .friend-list .friend-info p {
     color: #666;
     margin: 0;
-}</style>
+}
+.menu-bar {
+                        border-radius: 25px;
+                        height: -webkit-fit-content;
+                        height: -moz-fit-content;
+                        height: fit-content;
+                        display: inline-flex;
+                        background-color: rgba(0, 0, 0, 0.4);
+                        -webkit-backdrop-filter: blur(10px);
+                        backdrop-filter: blur(10px);
+                        align-items: center;
+                        padding: 0 10px;
+                        margin: 50px 0 0 0;
+                      }
+                      .menu-bar li {
+                        list-style: none;
+                        color: white;
+                        font-family: sans-serif;
+                        font-weight: bold;
+                        padding: 12px 16px;
+                        margin: 0 8px;
+                        position: relative;
+                        cursor: pointer;
+                        white-space: nowrap;
+                      }
+                      .menu-bar li::before {
+                        content: " ";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        height: 100%;
+                        width: 100%;
+                        z-index: -1;
+                        transition: 0.2s;
+                        border-radius: 25px;
+                      }
+                      .menu-bar li:hover {
+                        color: black;
+                      }
+                      .menu-bar li:hover::before {
+                        background: linear-gradient(to bottom, #e8edec, #d2d1d3);
+                        box-shadow: 0px 3px 20px 0px black;
+                        transform: scale(1.2);
+                      }
+                      * {
+                      box-sizing: border-box;
+                      }
+</style>
 <body>
 <center>
+
+    <ul style="position:fixed; top: -7%; right:20%;" class="menu-bar">
+            
+                      
+                          
+   
+        <form action="/search" method = "post">
+
+          <input type="text" placeholder="Search" name = "search" required = "required" />
+          <button>Search</button>
+        </form>
+             
+                    <li><a href="/home" style = "text-decoration: none; color: white;">Home</a></li>
+                    <li><a href="/friends" style = "text-decoration: none; color: white;">Friends</a></li>
+                    <li>Stories</li>
+                    <li><a href="/messages" style = "text-decoration: none; color: white;">Messages</a></li>
+                    <li>Games</li>
+        <li><a href="/settings" style = "text-decoration: none; color: white;">Settings</a></li>
+        <li><a href="/profile" style = "text-decoration: none; color: white;">Profile</a></li>
+        <div class="dropdown">
+          <li><a href="/home/post" style="text-decoration: none; border-radius: 360px;" class="dropbtn">+</a></li>
+          <div style="border-radius: 12px;" class="dropdown-content">
+            <!--<a href="/home/blog">Blog</a>
+            <a href="/home/img">Picture</a>
+            <a href="/home/vid">Video</a>-->
+          </div>
+        </div>
+        <li><a href="/logout" style = "text-decoration: none; color: white;">LOGOUT</a></li>
 
     
 <div class="container bootstrap snippets bootdeys">
