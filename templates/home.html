@@ -431,28 +431,36 @@ display: block;
     </div>
   </div>
 </div> -->
-<div style="position: absolute; height:20%; width:20%; right:0; overflow: scroll; background-color: skyblue; opacity: .5; border-radius: 8px;">
-<h1>Minimum: {{min}}°F</h1>
-    <h1>Maximum: {{max}}°F</h1>
-    <h1>{{head}}</h1>
-    <img src="https://developer.accuweather.com/sites/default/files/{{i_num}}-s.png" height = "200px" width="200px" alt="">
-
+<div style="text-align: left; position: absolute; height:60%; width:20%; right:0; overflow: scroll; background-color: lightgray; opacity: .5; border-radius: 8px;">
+    <strong >TOP NEWS IN YOUR AREA'r</strong><br><br>
     
     {%for article in articles%}
     <div class="anime">
-        <h1>{{article[0]}}</h1>
+        <p style="font-size: 80%;">{{article[0]}}</p>
 
 
-        <p>{{article[1]}}</p>
-        <a href="{{article[3]}}" target="_blank" rel="noreferrer noopener"><img src="{{article[2]}}" height = "200px" width="200px" alt=""></a>
+        <a href="{{article[3]}}" target="_blank" rel="noreferrer noopener"><img src="{{article[2]}}" height = "40%" width="40%" alt=""></a>
     </div>  
-    
 
+    <!-- <p style="font-size: 60%;">{{article[1]}} <p>{{article[4]}}</p></p> -->
+<hr>
     {%endfor%}
 
-    <h1>{{q}}</h1>
-    <p>-{{a}}</p>
+  </div>
 
+  <div style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; position: absolute; height:80%; width:20%; left:0; overflow: auto; background-color: lightgray; opacity: .5; border-radius: 8px;">
+    <strong><p>Weather in {{place}}</p></strong>
+  <p>Minimum: {{min}}°F</p>
+    <p>Maximum: {{max}}°F</p>
+    <p>{{head}}</p>
+    <img src="https://developer.accuweather.com/sites/default/files/{{i_num}}-s.png" height = "40%" width="40%" alt="">
+
+    <hr>
+
+
+    <p >QUOTE OF THE DAY:</p>
+    <p>{{q}}</p>
+    <p>-{{a}}</p>
   </div>
     
 <div id="scroller" class="mb-3">

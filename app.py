@@ -30,6 +30,8 @@ timeNow = time.strftime("%H:%M:%S")
 # date = datetime.datetime.now()
 
 
+
+
 def getName(email):
 
     if email == None:
@@ -211,6 +213,50 @@ cur.execute('CREATE TABLE IF NOT EXISTS "all_messages" ("groupID" , "email1", "e
 
 con.commit()
 cur.close()
+
+r = requests.get('https://api.ipdata.co?api-key=efa9939867be7cb086c0afd1ddbb716005e0efcea4f4313d6d130842').json()
+place = r['city']
+
+
+
+key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=uUD2ayq1cbOmn5ZLZD8FnqYBzxjV6iWz&q=" + place).json()
+print(key_link)
+key = key_link[0]['Key']
+complete_api_link = "https://dataservice.accuweather.com/forecasts/v1/daily/1day/" + key + "?apikey=uUD2ayq1cbOmn5ZLZD8FnqYBzxjV6iWz"
+print(complete_api_link)
+
+api_link = requests.get(complete_api_link)
+api_data = api_link.json()
+minimum_value = api_data['DailyForecasts'][0]['Temperature']['Minimum']['Value']
+maximum_value = api_data['DailyForecasts'][0]['Temperature']['Maximum']['Value']
+daily_headline = api_data['Headline']['Text']
+iconNum = api_data['DailyForecasts'][0]['Day']['Icon']
+print(type(iconNum))
+new_num = iconNum
+if iconNum < 10:
+    new_num = str(iconNum).zfill(2)
+else:
+    new_num = str(iconNum)
+
+#504613a92ad54b5ab541958334451484
+
+articles = requests.get('https://newsapi.org/v2/top-headlines?country=us&apiKey=504613a92ad54b5ab541958334451484').json()
+title = articles['articles'][0]['title']
+desc = articles['articles'][0]['description']
+image = articles['articles'][0]['urlToImage']
+url = articles['articles'][0]['url']
+
+
+
+all_articles = []
+all = articles['articles']
+for i in range(0,3):
+    thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url'],all[i]['source']['name']]
+    all_articles.append(thing)
+
+quote_link = requests.get('https://zenquotes.io/api/today').json()
+quote = quote_link[0]['q']
+author = quote_link[0]['a']
 
 app.secret_key = "secret key"
 app.config['PROFILE_FOLDER'] = PROFILE_FOLDER
@@ -863,39 +909,6 @@ def home():
         comments.append(comment)
     cur.close()
 
-    r = requests.get('https://api.ipdata.co?api-key=efa9939867be7cb086c0afd1ddbb716005e0efcea4f4313d6d130842').json()
-    place = r['city']
-
-    
-
-
-    key_link = requests.get("https://dataservice.accuweather.com/locations/v1/cities/search?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp&q=" + place).json()
-    key = key_link[0]['Key']
-    complete_api_link = "https://dataservice.accuweather.com/forecasts/v1/daily/1day/" + key + "?apikey=xx3iNxaM3RWraGTJnROnG0Bet38mzHKp"
-    print(complete_api_link)
-
-    api_link = requests.get(complete_api_link)
-    api_data = api_link.json()
-    minimum_value = api_data['DailyForecasts'][0]['Temperature']['Minimum']['Value']
-    maximum_value = api_data['DailyForecasts'][0]['Temperature']['Maximum']['Value']
-    daily_headline = api_data['Headline']['Text']
-    iconNum = api_data['DailyForecasts'][0]['Day']['Icon']
-    print(type(iconNum))
-    new_num = iconNum
-    if iconNum < 10:
-	    new_num = str(iconNum).zfill(2)
-    else:
-	    new_num = str(iconNum)
-
-    #504613a92ad54b5ab541958334451484
-
-    articles = requests.get('https://newsapi.org/v2/top-headlines?country=us&apiKey=504613a92ad54b5ab541958334451484').json()
-    title = articles['articles'][0]['title']
-    desc = articles['articles'][0]['description']
-    image = articles['articles'][0]['urlToImage']
-    url = articles['articles'][0]['url']
-    
-
 
     all_articles = []
     all = articles['articles']
@@ -903,7 +916,7 @@ def home():
       thing = [all[i]['title'], all[i]['description'],all[i]['urlToImage'],all[i]['url'],all[i]['source']['name']]
       all_articles.append(thing)
 
-    quote_link = requests.get('https://zenquotes.io/api/random').json()
+    quote_link = requests.get('https://zenquotes.io/api/today').json()
     quote = quote_link[0]['q']
     author = quote_link[0]['a']
 
@@ -913,7 +926,7 @@ def home():
 
 
 
-    return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, min = minimum_value, max = maximum_value, head = daily_headline, i_num = new_num, title = title, image = image, url = url, desc = desc, articles = all_articles, q = quote, a = author)
+    return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, min = minimum_value, max = maximum_value, head = daily_headline, i_num = new_num, title = title, image = image, url = url, desc = desc, articles = all_articles, q = quote, a = author, place=place)
 
 @app.route('/search' , methods=['GET', 'POST'])
 @login_required
