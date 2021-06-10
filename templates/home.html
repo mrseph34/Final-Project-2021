@@ -11,6 +11,18 @@
           <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 				</head>
         <style>
+          .nav-link{
+            color: #c3b18c;
+          }
+          .nav-link:hover{
+            color: #b8a785;
+          }
+          .tooly{
+            display: none;
+          }
+          .nav-link:hover .tooly{
+            display: block
+          }
           @import url("//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 
 .navbar-icon-top .navbar-nav .nav-link > .fa {
@@ -124,6 +136,7 @@
 
   .navbar-icon-top.navbar-expand-xl .navbar-nav .nav-link > .fa > .badge {
     top: -7px;
+    
   }
 }
 
@@ -376,25 +389,24 @@ display: block;
                         }
                       }
         </style>
-				<center>
 				<body>
 
 
 
-          <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-dark" style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">
-            <a class="navbar-brand" href="#">&nbsp; Hoots<img src="https://1000logos.net/wp-content/uploads/2017/08/OVO-Logo.png" height=50px></a>
+          <nav class="navbar navbar-icon-top navbar-expand-lg" style="background-color: white; position:fixed; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; height: 7%; width: 100%; left: 0; top: 0;">
+            <a style="color: #c3b18c;" class="navbar-brand" href="#">&nbsp; Hoots<img src="https://1000logos.net/wp-content/uploads/2017/08/OVO-Logo.png" height=50px></a>
             
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
           
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              
               <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
                   <a class="nav-link" href="#">
                     <i class="fa fa-home"></i>
-                    Home
-                    <span class="sr-only">(current)</span>
+                    <div class="tooly">Home</div>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -402,11 +414,31 @@ display: block;
                     <i class="fa fa-users" aria-hidden="true">
                       <span class="badge badge-danger"> 11</span>
                     </i>
-                    Friends
+                   <div class="tooly">Friends</div>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link disabled" href="#">
+                  <a class="nav-link" href="#">
+                    <i class="fa fa-envelope" aria-hidden="true">
+                      <span class="badge badge-danger"> 11</span>
+                    </i>
+                    <div class="tooly">Messages</div>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fa fa-play" aria-hidden="true">
+                      <span class="badge badge-danger"> 11</span>
+                    </i>
+                    <div class="tooly">Apps</div>
+                  </a>
+                </li>
+                <form action="/search" method = "post" style="position:absolute; right:50%; top:20%;">
+                  <input type="text" placeholder="Search" name = "search" required = "required" />
+                  <button><span class="fa fa-search"></span></button>
+                </form>
+                <!-- <li class="nav-item">
+                  <a class="nav-link disabled" href="#"></a>
                     <i class="fa fa-envelope">
                       <span class="badge badge-warning">11</span>
                     </i>
@@ -415,10 +447,9 @@ display: block;
                 </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-envelope-o">
-                      <span class="badge badge-primary">11</span>
+                    <i class="fa fa-play">
                     </i>
-                    Dropdown
+                    Apps
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="#">Action</a>
@@ -426,30 +457,26 @@ display: block;
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Something else here</a>
                   </div>
-                </li>
+                </li> -->
               </ul>
-              <ul class="navbar-nav ">
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fa fa-bell">
-                      <span class="badge badge-info">11</span>
-                    </i>
-                    Test
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fa fa-globe">
-                      <span class="badge badge-success">11</span>
-                    </i>
-                    Test
-                  </a>
-                </li>
-              </ul>
-              <form action="/search" method = "post" class="form-inline my-2 my-lg-0" style="position: absolute; right: 0;">
-                <input name="search" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" required>
-                <button style="display: inline;" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-              </form>
+                <div style="position: absolute; right: 0;">
+                <ul class="navbar-nav ">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      <i class="fa fa-user">
+                      </i>
+                      <div class="tooly">Profile</div>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      <i class="fa fa-cogs">
+                      </i>
+                      <div class="tooly">Settings</div>
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </nav>
 
@@ -626,8 +653,9 @@ display: block;
     </div>
   </div>
 </div> -->
-<div style="text-align: left; position: absolute; height:60%; width:19%; right:0; overflow: scroll; background-color: lightgray; opacity: .5; border-radius: 8px;">
-    <strong >TOP NEWS IN YOUR AREA</strong><br><br>
+<div style="text-align: left; position: fixed; height:80%; width:19%; right:.5%; overflow: scroll; background-color: lightgray; opacity: .5; border-radius: 8px;">
+  <center>
+  <strong >TOP NEWS IN YOUR AREA</strong><br><br>
     
     {%for article in articles%}
     <div class="anime">
@@ -636,6 +664,7 @@ display: block;
 
 
         <a href="{{article[3]}}" target="_blank" rel="noreferrer noopener"><img src="{{article[2]}}" height = "40%" width="80%" alt=""></a>
+
     </div>  
 
     <!-- <p style="font-size: 60%;">{{article[1]}} <p>{{article[4]}}</p></p> -->
@@ -643,8 +672,8 @@ display: block;
     {%endfor%}
 
   </div>
-
-  <div style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; position: absolute; height:80%; width:20%; left:0; overflow: auto; background-color: lightgray; opacity: .5; border-radius: 8px;">
+<button style="position: fixed; right: 6.5%; top: 90%;"><span class="fa fa-">Show More</span></button>
+  <div style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; position: fixed; height:80%; width:20%; left:0; overflow: auto; background-color: lightgray; opacity: .5; border-radius: 8px;">
     <strong><p>Weather in {{place}}</p></strong>
   <p>Minimum: {{min}}°F</p>
     <p>Maximum: {{max}}°F</p>
@@ -658,9 +687,9 @@ display: block;
    
     <blockquote>&ldquo;{{q}}&rdquo; &mdash; <footer>{{a}}</footer></blockquote>
     
-    
+  </center>
   </div>
-    
+    <center>
 <div id="scroller" class="mb-3">
 
   <!-- template schema, hidden from the dom -->
