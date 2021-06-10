@@ -985,6 +985,54 @@ def search():
         postsDB2.append(post)
     cur.close()
 
+
+
+
+    # cur.execute("SELECT * FROM all_posts WHERE name LIKE '" + "%" +search+ "%" + "'")
+    
+    # rows = cur.fetchall()
+    
+    # global postsDB2
+    # postsDB2 = []
+    # for row in reversed(rows):
+    #     post = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],getTime(row[2]),getID(row[8]),row[11]]
+    #     postsDB2.append(post)
+    # cur.close()
+
+
+    # cur.execute('CREATE TABLE IF NOT EXISTS "users" ("fname" TEXT, "lname" TEXT, "email" TEXT, "password" TEXT, "profilePic" TEXT, "bio" TEXT, "username" TEXT, "security question" TEXT, "security answer" TEXT, "userID" INTEGER PRIMARY KEY)')
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    
+    cur.execute("SELECT * FROM users WHERE fname LIKE '" + "%" +search+ "%" + "' OR lname LIKE '" + "%" +search+ "%" + "'")
+
+    profile_rows = cur.fetchall()
+
+    profiles = []
+
+    for row in profile_rows:
+        name = row[0] + " " + row[1]
+        profile = [name, row[2],row[4]]
+        print(profile)
+        profiles.append(profile)
+
+    # pic_sql = 'SELECT profilePic FROM users WHERE email=?'
+    # cur.execute(pic_sql, (email,))
+    # pic = cur.fetchall()
+    # pic = pic[0][0]
+
+    # fname_sql = 'SELECT fname FROM users WHERE email=?'
+    # cur.execute(fname_sql, (email,))
+    # fname = cur.fetchall()
+    # fname = fname[0][0]
+
+    # lname_sql = 'SELECT lname FROM users WHERE email=?'
+    # cur.execute(lname_sql, (email,))
+    # lname = cur.fetchall()
+    # lname = lname[0][0]
+
+
+
     con = sql.connect("./static/data/data.db")
     cur = con.cursor()
 
@@ -996,7 +1044,7 @@ def search():
         comments.append(comment)
     cur.close()
    
-    return render_template('search.html', users=users, posts = postsDB, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic)
+    return render_template('search.html', users=users, posts = postsDB, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, profiles = profiles)
 
 @app.route('/home/post')
 @login_required
