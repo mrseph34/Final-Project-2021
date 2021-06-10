@@ -811,6 +811,8 @@ def home():
 
     full_name = getName(None)
 
+    stock_key = "9J76BVB2N976KTZN"
+    
     profilePic = []
 
     con = sql.connect("./static/data/data.db")
