@@ -94,6 +94,30 @@ def getID(email):
 
     return usID
 
+def getFriends(email):
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    cur.execute("SELECT * FROM friendships WHERE party1='"+email+"' OR party2='"+email+"'")
+
+    friends = len(cur.fetchall())
+    con.commit()
+    cur.close()
+
+    return friends
+
+def getMessages(email):
+
+    con = sql.connect("./static/data/data.db")
+    cur = con.cursor()
+    cur.execute("SELECT * FROM all_messages WHERE email1='"+email+"' OR email2='"+email+"'")
+
+    msgs = len(cur.fetchall())
+    con.commit()
+    cur.close()
+
+    return msgs
+
 def getEmail(ide):
     
     con = sql.connect("./static/data/data.db")
@@ -464,7 +488,7 @@ def friends():
 
             
 
-    return render_template('friends.html', list = list, email = email ,flist = list_of_friends)
+    return render_template('friends.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), list = list, email = email ,flist = list_of_friends)
 
 @app.route('/messages/<friend>')
 @login_required
@@ -536,7 +560,7 @@ def profile():
 
     name = fname + " " + lname
 
-    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, friends=friendAmt)
+    return render_template('profile.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, friends=friendAmt)
 
 @app.route('/profile/<email>')
 @login_required
@@ -598,7 +622,7 @@ def profile2(email):
 
     name = fname + " " + lname
 
-    return render_template('profile.html', email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows, isProf="no", friends=friendAmt, friendo=friendo)
+    return render_template('profile.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), email=email, pic = pic, name = name, post_num = post_num, followers=followersAmt, follows=follows, isProf="no", friends=friendAmt, friendo=friendo)
 
 @app.route('/messages')
 @login_required
@@ -624,7 +648,7 @@ def messages2():
     cur.close()
     con.close()
 
-    return render_template('messages.html', messageGroup = messageGroup)
+    return render_template('messages.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), messageGroup = messageGroup)
 
 @app.route('/sendMessage/<reciever>/<msg>', methods=["POST","GET"])
 def messageSEND(reciever,msg):
@@ -735,7 +759,7 @@ def messages(reciever):
     sname = cur.fetchall()
     reciever = sname[0][0]
 
-    return render_template('messages.html', messageGroup=messageGroup, reciever = reciever, messages = messages, ol=ol, theName = getName(reciever), gic=gic, ml=ml)
+    return render_template('messages.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), messageGroup=messageGroup, reciever = reciever, messages = messages, ol=ol, theName = getName(reciever), gic=gic, ml=ml)
 
 @app.route('/settings')
 @login_required
@@ -764,7 +788,7 @@ def settings():
     cur.close()
     con.close()
 
-    return render_template('settings.html', full_name = full_name, match = False, ematch = False, change=changed, pic=pic)
+    return render_template('settings.html',  full_name = full_name, match = False, ematch = False, change=changed, pic=pic)
 
 @app.route('/ForgotPassword')
 def forgotPassword():
@@ -920,12 +944,6 @@ def home():
     author = quote_link[0]['a']
     h = quote_link[0]['h']
 
-
-
-
-
-
-
     return render_template('home.html', users=users, posts = posts, comments=comments, replies="replies", name=full_name, email=current_user.get_id(), profilePic = profilePic, min = minimum_value, max = maximum_value, head = daily_headline, i_num = new_num, title = title, image = image, url = url, desc = desc, articles = all_articles, q = quote, a = author, h = h)
 
 @app.route('/search' , methods=['GET', 'POST'])
@@ -1014,7 +1032,7 @@ def search():
 
     for row in profile_rows:
         name = row[0] + " " + row[1]
-        profile = [name, row[2],row[4]]
+        profile = [name, row[2],row[4],getID(row[2])]
         print(profile)
         profiles.append(profile)
 
@@ -1058,7 +1076,7 @@ def homePost():
 
 
 
-    return render_template('posts.html', type=type)
+    return render_template('posts.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), type=type)
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -1150,8 +1168,7 @@ def profilePic():
     cur.execute("UPDATE all_comments SET profilePic='"+imgname+"' WHERE email='"+email+"'")
 
     con.commit()
-    cur.close()
-    con.close()
+   
 
     change = "PROFILE PIC CHANGED SUCCESSFULLY!"
 
@@ -1183,17 +1200,23 @@ def register():
     for row in emails:
         if row[0].upper() == email.upper():
             huh = "EMAIL EXISTS"
-            return render_template('index.html', failed2 = "Email already exists")
+            print(huh)
+            return render_template('index.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), failed2 = "Email already exists")
 
     if huh == "EMAIL DO NOT EXIST":
+        print('hi')
         cur.execute("INSERT INTO users(fname, lname, email, password, profilePic) VALUES((?),(?),(?),(?),(?))", (fname, lname, email, password,defPic))
         cur.execute('CREATE TABLE' + insert  + '("post" TEXT, "name" TEXT)')
+        
 
 
         con.commit()
 
     cur.close()
     con.close()
+
+    Us = load_user(email)
+    login_user(Us, remember = email)
 
     return redirect("/home", code=302)
 
@@ -1225,10 +1248,10 @@ def login():
                     login_user(Us, remember = email)
 
                 elif name != row[0]:
-                    return render_template('index.html', failed = "Password is incorrect")
+                    return render_template('index.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), failed = "Password is incorrect")
 
     if exists == False:
-            return render_template('index.html', failed = "Email is not registered")
+            return render_template('index.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), failed = "Email is not registered")
 
 
 
@@ -1368,7 +1391,7 @@ def change_pass():
         match = True
         con.commit()
         cur.close()
-        return render_template('settings.html', full_name = full_name, exists = match, ematch = False)
+        return render_template('settings.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), full_name = full_name, exists = match, ematch = False)
 
 @app.route('/change_email', methods = ['POST', 'GET'])
 @login_required
@@ -1411,7 +1434,7 @@ def change_email():
         change = "EMAIL CHANGED SUCCESSFULLY!"
         return redirect("/settings", code = 302)
     else:
-        return render_template('settings.html', full_name = full_name, match = False, ematch = exists)
+        return render_template('settings.html', friendsNum = getFriends(current_user.get_id()), msgNum = getMessages(current_user.get_id()), full_name = full_name, match = False, ematch = exists)
 
 @app.route('/change_name', methods = ['POST', 'GET'])
 @login_required
@@ -1431,7 +1454,7 @@ def change_name():
     print("")
     full_name = fname + " " + lname
     con.commit()
-    cur.close()
+    
     global change
     change = "NAME CHANGED SUCCESSFULLY!"
     return redirect("/settings", code = 302)
